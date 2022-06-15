@@ -5,7 +5,8 @@
 # @version 0.1
 
 compile:
-	$(CXX) main.cpp -o engine
+	$(CXX) -c *.cpp #-fno-stack-protector
+	$(CXX) *\.o -o engine
 
 
 # end

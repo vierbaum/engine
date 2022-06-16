@@ -1,5 +1,4 @@
 #include "search.h"
-#include "genmove.h"
 #include <vector>
 
 double alphaBetaMax(Board board, double alpha, double beta, int depthleft, bool root) {
@@ -7,7 +6,8 @@ double alphaBetaMax(Board board, double alpha, double beta, int depthleft, bool 
     return board.eval();
 
   Board move;
-  std::vector<Board> moves = genMove(&board, 1);
+  std::vector<Board> moves;
+  genMove(&board, 1, &moves);
   for (int i = 0; i < moves.size(); i++) {
     double score = alphaBetaMin(moves[i], alpha, beta, depthleft - 1, 0);
 
@@ -31,7 +31,9 @@ double alphaBetaMin(Board board, double alpha, double beta, int depthleft, bool 
 
   Board move;
 
-  std::vector<Board> moves = genMove(&board, 0);
+
+  std::vector<Board> moves;
+  genMove(&board, 0, &moves);
   for (int i = 0; i < moves.size(); i++) {
     double score = alphaBetaMax(moves[i], alpha, beta, depthleft - 1, 0);
 

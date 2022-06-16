@@ -9,5 +9,7 @@ void moveDiagonal(int, int, std::vector<Board>*,  Board*, bool);
 
 void rookMove(int, int, std::vector<Board>*, Board*, bool);
 
-std::vector<Board> genMove(Board*, bool);
+void genMove(Board*, bool, std::vector<Board>*);
+
+
 #endif // GENMOVE_H_

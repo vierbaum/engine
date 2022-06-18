@@ -1,5 +1,147 @@
 #include "genmove.h"
 
+bool isInCheck(Board* board, bool color, int x, int y) {
+  int nightMoves[8][2] = {{-1, 2}, {1, 2}, {2, 1}, {2, -1}, {-1, -2}, {1, -2}, {-2, -1}, {-2, 1}};
+  int cDown = x + y; // y = -x + c => c = x + y
+  int cUp = y - x; // y = x + c => c = y - x
+
+  if (color) {
+    for (int xc = x; x < 7; x++) {
+      if (board->board[xc][y] == 'r' || board->board[xc][y] == 'q')
+        return 1;
+      else if (board->board[xc][y] != 48)
+        break;
+    }
+    for (int xc = x; x >= 0; x--) {
+      if (board->board[xc][y] == 'r' || board->board[xc][y] == 'q')
+        return 1;
+      else if (board->board[xc][y] != 48)
+        break;
+    }
+
+    for (int yc = y; y < 7; y++) {
+      if (board->board[x][yc] == 'r' || board->board[x][yc] == 'q')
+        return 1;
+      else if (board->board[x][yc] != 48)
+        break;
+    }
+    for (int yc = y; y >= 0; y--) {
+      if (board->board[x][yc] == 'r' || board->board[x][yc] == 'q')
+        return 1;
+      else if (board->board[x][yc] != 48)
+        break;
+    }
+    for (int xc = x - 1; xc >= 0; xc--) { // left Down
+      int yc = cDown - xc;
+      if (board->board[xc][yc] == 'r' || board->board[xc][yc] == 'q')
+        return 1;
+      else if (board->board[xc][yc] != 48)
+        break;
+    }
+
+    for (int xc = x - 1; xc >= 0; xc--) { // left Up
+      int yc = xc + cUp;
+      if (board->board[xc][yc] == 'r' || board->board[xc][yc] == 'q')
+        return 1;
+      else if (board->board[xc][yc] != 48)
+        break;
+    }
+
+    for (int xc = x + 1; xc < 8; xc++) { // right Down
+      int yc = cDown - xc;
+      if (board->board[xc][yc] == 'r' || board->board[xc][yc] == 'q')
+        return 1;
+      else if (board->board[xc][yc] != 48)
+        break;
+    }
+
+    for (int xc = x + 1; xc < 8; xc++) { // right Up
+      int yc = xc + cUp;
+      if (board->board[xc][yc] == 'r' || board->board[xc][yc] == 'q')
+        return 1;
+      else if (board->board[xc][yc] != 48)
+        break;
+    }
+
+    for(int i = 0; i < 8; i++) {
+      int xc = x + nightMoves[i][0];
+      int yc = y + nightMoves[i][1];
+      if (board->board[xc][yc] == 'r' || board->board[xc][yc] == 'q')
+        return 1;
+      else if (board->board[xc][yc] != 48)
+        break;
+    }
+  }
+  else {
+    for (int xc = x; x < 7; x++) {
+      if (board->board[xc][y] == 'R' || board->board[xc][y] == 'Q')
+        return 1;
+      else if (board->board[xc][y] != 48)
+        break;
+    }
+    for (int xc = x; x >= 0; x--) {
+      if (board->board[xc][y] == 'R' || board->board[xc][y] == 'Q')
+        return 1;
+      else if (board->board[xc][y] != 48)
+        break;
+    }
+
+    for (int yc = y; y < 7; y++) {
+      if (board->board[x][yc] == 'R' || board->board[x][yc] == 'Q')
+        return 1;
+      else if (board->board[x][yc] != 48)
+        break;
+    }
+    for (int yc = y; y >= 0; y--) {
+      if (board->board[x][yc] == 'R' || board->board[x][yc] == 'Q')
+        return 1;
+      else if (board->board[x][yc] != 48)
+        break;
+    }
+    for (int xc = x - 1; xc >= 0; xc--) { // left Down
+      int yc = cDown - xc;
+      if (board->board[xc][yc] == 'R' || board->board[xc][yc] == 'Q')
+        return 1;
+      else if (board->board[xc][yc] != 48)
+        break;
+    }
+
+    for (int xc = x - 1; xc >= 0; xc--) { // left Up
+      int yc = xc + cUp;
+      if (board->board[xc][yc] == 'R' || board->board[xc][yc] == 'Q')
+        return 1;
+      else if (board->board[xc][yc] != 48)
+        break;
+    }
+
+    for (int xc = x + 1; xc < 8; xc++) { // right Down
+      int yc = cDown - xc;
+      if (board->board[xc][yc] == 'R' || board->board[xc][yc] == 'Q')
+        return 1;
+      else if (board->board[xc][yc] != 48)
+        break;
+    }
+
+    for (int xc = x + 1; xc < 8; xc++) { // right Up
+      int yc = xc + cUp;
+      if (board->board[xc][yc] == 'R' || board->board[xc][yc] == 'Q')
+        return 1;
+      else if (board->board[xc][yc] != 48)
+        break;
+    }
+
+    for(int i = 0; i < 8; i++) {
+      int xc = x + nightMoves[i][0];
+      int yc = y + nightMoves[i][1];
+      if (board->board[xc][yc] == 'R' || board->board[xc][yc] == 'Q')
+        return 1;
+      else if (board->board[xc][yc] != 48)
+        break;
+    }
+
+  }
+  return 0;
+}
 
 Board newBoard(Board* board, int x, int y, int xc, int yc) {
   Board b = *board;

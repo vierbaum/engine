@@ -11,5 +11,5 @@ void rookMove(int, int, std::vector<Board>*, Board*, bool);
 
 void genMove(Board*, bool, std::vector<Board>*);
 
-
+bool isInCheck(Board*, bool, int, int);
 #endif // GENMOVE_H_

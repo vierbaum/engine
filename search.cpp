@@ -8,7 +8,14 @@ double alphaBetaMax(Board board, double alpha, double beta, int depthleft, bool 
   Board move;
   std::vector<Board> moves;
   genMove(&board, 1, &moves);
+  if (moves.size() == 0)
+    return 0;
+
   for (int i = 0; i < moves.size(); i++) {
+    if(root) {
+      printf("info currmove ");
+      moves[i].lastMove();
+    }
     double score = alphaBetaMin(moves[i], alpha, beta, depthleft - 1, 0);
 
     if (score >= beta)
@@ -17,10 +24,14 @@ double alphaBetaMax(Board board, double alpha, double beta, int depthleft, bool 
     if (score > alpha) {
       alpha = score;
       move = moves[i];
+      if (root)
+        printf("info score cp %d\n", (int) (beta));
     }
   }
-  if (root)
-    move.moveHist();
+  if (root) {
+    printf("info score cp %d\n", (int) (beta - 10000));
+    move.lastMove();
+  }
   return alpha;
 
 }
@@ -34,6 +45,9 @@ double alphaBetaMin(Board board, double alpha, double beta, int depthleft, bool 
 
   std::vector<Board> moves;
   genMove(&board, 0, &moves);
+  if (moves.size() == 0)
+    return 0;
+
   for (int i = 0; i < moves.size(); i++) {
     double score = alphaBetaMax(moves[i], alpha, beta, depthleft - 1, 0);
 
@@ -46,7 +60,7 @@ double alphaBetaMin(Board board, double alpha, double beta, int depthleft, bool 
     }
   }
   if (root)
-    move.moveHist();
+    move.lastMove();
   return beta;
 }
 

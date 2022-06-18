@@ -35,15 +35,85 @@ class Board {
   std::vector<std::array<std::array<int, 2>, 2>> moves;
   bool castlingRights[4] = {1, 1, 1, 1};
   char board[8][8];
+  float pawneval[8][8] = {{0, 0, 0, 0, 0, 0, 0, 0}, {1, 1, 1, 0.8f, 0.8f, 1.1f, 1.1f, 1.1f}, {0.75f, 0.5f, 0.5f, 0.8f, 0.8f, 1.1f, 1.1f, 1.1f}, {1.2f, 1.2f, 1.2f, 1.5f, 1.5f, 0.5f, 0.5f, 0.5f}, {1.75f, 1.75f, 1.75f, 1, 1, 0.5f, 0.5f, 0.5f}, {2, 2, 2, 1, 1, 1.75f, 1.75f, 1.75f}, {3, 3, 3, 3, 3, 3, 3, 3}, {10, 10, 10, 10, 10, 10, 10, 10}};
+  bool promotion = false;
 
-  void makeMove(int from[2], int to[2]) {
-    //moves.push_back({{from[0], from[1]}, {to[0], to[1]}});
+  void makeMove(int from[2], int to[2], bool promotion_=false) {
+
+    if (promotion)
+      promotion = !promotion;
+
     std::array<std::array<int, 2>, 2> move;
     move[0] = {from[0], from[1]};
     move[1] = {to[0], to[1]};
     moves.push_back(move);
-    board[to[0]][to[1]] = board[from[0]][from[1]];
-    board[from[0]][from[1]] = '0';
+
+    if ((from[1] == 6 && board[from[0]][from[1]] == 'P' && to[1] == 7) || promotion_) {
+      board[to[0]][to[1]] = 'Q';
+      board[from[0]][from[1]] = '0';
+      promotion = true;
+    }
+    else if (from[0] == 4 && from[1] == 0 && board[from[0]][from[1]] == 'K' && (to[0] == 2 || to[0] == 6)) {
+      if (to[0] == 2 && castlingRights[1]) {
+        board[4][0] = '0';
+        board[0][0] = '0';
+        board[3][0] = 'R';
+        board[2][0] = 'K';
+      }
+      if (to[0] == 6 && castlingRights[0]) {
+        board[4][0] = '0';
+        board[7][0] = '0';
+        board[5][0] = 'R';
+        board[6][0] = 'K';
+      }
+    }
+    else if (from[0] == 4 && from[1] == 7 && board[from[0]][from[1]] == 'k' && (to[0] == 2 || to[0] == 6)) {
+      if (to[0] == 2 && castlingRights[3]) {
+        board[4][7] = '0';
+        board[0][7] = '0';
+        board[3][7] = 'r';
+        board[2][7] = 'k';
+      }
+      if (to[0] == 6 && castlingRights[2]) {
+        board[4][7] = '0';
+        board[7][7] = '0';
+        board[5][7] = 'r';
+        board[6][7] = 'k';
+      }
+    }
+    else {
+      board[to[0]][to[1]] = board[from[0]][from[1]];
+      board[from[0]][from[1]] = '0';
+    }
+
+
+    if (from[0] == 4) {
+      if (from[1] == 0) {
+        castlingRights[0] = 0;
+        castlingRights[1] = 0;
+        }
+      else if (from[1] == 7) {
+        castlingRights[2] = 0;
+        castlingRights[3] = 0;
+      }
+    }
+    else if (from[0] == 0) {
+      if (from[1] == 0) {
+        castlingRights[0] = 0;
+        }
+      else if (from[1] == 7) {
+        castlingRights[2] = 0;
+      }
+    }
+    else if (from[0] == 7) {
+      if (from[1] == 0) {
+        castlingRights[1] = 0;
+        }
+      else if (from[1] == 7) {
+        castlingRights[3] = 0;
+      }
+    }
+
   }
 
   void moveHist() {
@@ -51,6 +121,14 @@ class Board {
       printf("%d. %c%d%c%d\n", i + 1, moves[i][0][0] + 97, moves[i][0][1] + 1, moves[i][1][0] + 97, moves[i][1][1] + 1);
     }
 
+  }
+
+  void lastMove() {
+    int i = moves.size() - 1;
+    if (promotion)
+      printf("bestmove %c%d%c%dq\n", moves[i][0][0] + 97, moves[i][0][1] + 1, moves[i][1][0] + 97, moves[i][1][1] + 1);
+    else
+      printf("bestmove %c%d%c%d\n", moves[i][0][0] + 97, moves[i][0][1] + 1, moves[i][1][0] + 97, moves[i][1][1] + 1);
   }
 
   void fromFen(char* fen) {
@@ -84,8 +162,6 @@ class Board {
   }
 
   void print() {
-    setlocale(LC_CTYPE, "");
-    //wprintf(L"%lc\n", 0x2650);
 
     for (int y = 7; y >= 0; y--) {
       for (int x = 0; x < 8; x++) {
@@ -113,7 +189,7 @@ class Board {
       for (int y = 0; y < 8; y++) {
         switch (board[x][y]) {
         case 'P':
-          eval += PAWN;
+          eval += pawneval[y][x];
           break;
 
         case 'p':
@@ -153,7 +229,7 @@ class Board {
           break;
 
         case 'K':
-          eval += KING;
+          eval += KING + 100;
           break;
 
         case 'k':

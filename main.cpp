@@ -10,7 +10,8 @@
 int main(int argc, char *argv[]) {
 
 
-  char s[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+  //char s[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+  char s[] = "4k3/8/8/8/8/8/3r3r/R3K2R";
   //char s[] = "r7/kbQ2p2/1pP4p/p2R4/4P3/8/2PP1PPP/1NB1KBNR";
   //char s[] = "r1bq1rk1/1p3pp1/p1np4/2pPp2p/2P4P/2NP2P1/PP3PB1/R1Q2RK1";
   //char s[] = "r1bq1rk1/1p3pp1/p1Pp4/2p1p2p/2P4P/2NP2P1/PP3PB1/R1Q2RK1";
@@ -22,8 +23,13 @@ int main(int argc, char *argv[]) {
 
   std::string input;
 
-
   bool done = false;
+
+  printf("%c\n", board.board[4][0]);
+  std::vector<Board> moves;
+  genMove(&board, 1, &moves);
+  for (int i = 0; i < moves.size(); i++)
+    moves[i].lastMove();
 
   while (!done) {
     std::getline(std::cin, input);
@@ -60,7 +66,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (input.substr(0, 2) == "go") {
-      alphaBetaMax(board, -10000, 10000, 4, 1);
+      alphaBetaRoot(board, -10000, 10000, 5);
     }
 
     if (input == "print") {

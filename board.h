@@ -48,10 +48,14 @@ class Board {
     move[1] = {to[0], to[1]};
     moves.push_back(move);
 
-    if ((from[1] == 6 && board[from[0]][from[1]] == 'P' && to[1] == 7) || promotion_) {
+    if ((from[1] == 6 && board[from[0]][from[1]] == 'P' && to[1] == 7)) {
       board[to[0]][to[1]] = 'Q';
       board[from[0]][from[1]] = '0';
       promotion = true;
+    }
+    if ((from[1] == 1 && board[from[0]][from[1]] == 'p' && to[1] == 0)) {
+      board[to[0]][to[1]] = 'q';
+      board[from[0]][from[1]] = '0';
     }
     else if (from[0] == 4 && from[1] == 0 && board[from[0]][from[1]] == 'K' && (to[0] == 2 || to[0] == 6)) {
       if (to[0] == 2 && castlingRights[1]) {
@@ -131,6 +135,14 @@ class Board {
       printf("bestmove %c%d%c%d\n", moves[i][0][0] + 97, moves[i][0][1] + 1, moves[i][1][0] + 97, moves[i][1][1] + 1);
   }
 
+  void pMoves() {
+    int i = moves.size() - 1;
+    if (promotion)
+      printf("%c%d%c%dq\n", moves[i][0][0] + 97, moves[i][0][1] + 1, moves[i][1][0] + 97, moves[i][1][1] + 1);
+    else
+      printf("%c%d%c%d\n", moves[i][0][0] + 97, moves[i][0][1] + 1, moves[i][1][0] + 97, moves[i][1][1] + 1);
+  }
+
   void fromFen(char* fen) {
     int x = 0;
     int y = 0;
@@ -193,7 +205,7 @@ class Board {
           break;
 
         case 'p':
-          eval -= PAWN;
+          eval -= pawneval[7 - y][x];
           break;
 
         case 'N':

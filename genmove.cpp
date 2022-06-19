@@ -6,26 +6,26 @@ bool isInCheck(Board* board, bool color, int x, int y) {
   int cUp = y - x; // y = x + c => c = y - x
 
   if (color) {
-    for (int xc = x; x < 7; x++) {
+    for (int xc = x; xc < 7; xc++) {
       if (board->board[xc][y] == 'r' || board->board[xc][y] == 'q')
         return 1;
       else if (board->board[xc][y] != 48)
         break;
     }
-    for (int xc = x; x >= 0; x--) {
+    for (int xc = x; xc >= 0; xc--) {
       if (board->board[xc][y] == 'r' || board->board[xc][y] == 'q')
         return 1;
       else if (board->board[xc][y] != 48)
         break;
     }
 
-    for (int yc = y; y < 7; y++) {
+    for (int yc = y; yc < 7; yc++) {
       if (board->board[x][yc] == 'r' || board->board[x][yc] == 'q')
         return 1;
       else if (board->board[x][yc] != 48)
         break;
     }
-    for (int yc = y; y >= 0; y--) {
+    for (int yc = y; yc >= 0; yc--) {
       if (board->board[x][yc] == 'r' || board->board[x][yc] == 'q')
         return 1;
       else if (board->board[x][yc] != 48)
@@ -33,7 +33,7 @@ bool isInCheck(Board* board, bool color, int x, int y) {
     }
     for (int xc = x - 1; xc >= 0; xc--) { // left Down
       int yc = cDown - xc;
-      if (board->board[xc][yc] == 'r' || board->board[xc][yc] == 'q')
+      if (board->board[xc][yc] == 'b' || board->board[xc][yc] == 'q')
         return 1;
       else if (board->board[xc][yc] != 48)
         break;
@@ -41,7 +41,7 @@ bool isInCheck(Board* board, bool color, int x, int y) {
 
     for (int xc = x - 1; xc >= 0; xc--) { // left Up
       int yc = xc + cUp;
-      if (board->board[xc][yc] == 'r' || board->board[xc][yc] == 'q')
+      if (board->board[xc][yc] == 'b' || board->board[xc][yc] == 'q')
         return 1;
       else if (board->board[xc][yc] != 48)
         break;
@@ -49,7 +49,7 @@ bool isInCheck(Board* board, bool color, int x, int y) {
 
     for (int xc = x + 1; xc < 8; xc++) { // right Down
       int yc = cDown - xc;
-      if (board->board[xc][yc] == 'r' || board->board[xc][yc] == 'q')
+      if (board->board[xc][yc] == 'b' || board->board[xc][yc] == 'q')
         return 1;
       else if (board->board[xc][yc] != 48)
         break;
@@ -57,7 +57,7 @@ bool isInCheck(Board* board, bool color, int x, int y) {
 
     for (int xc = x + 1; xc < 8; xc++) { // right Up
       int yc = xc + cUp;
-      if (board->board[xc][yc] == 'r' || board->board[xc][yc] == 'q')
+      if (board->board[xc][yc] == 'b' || board->board[xc][yc] == 'q')
         return 1;
       else if (board->board[xc][yc] != 48)
         break;
@@ -66,7 +66,7 @@ bool isInCheck(Board* board, bool color, int x, int y) {
     for(int i = 0; i < 8; i++) {
       int xc = x + nightMoves[i][0];
       int yc = y + nightMoves[i][1];
-      if (board->board[xc][yc] == 'r' || board->board[xc][yc] == 'q')
+      if (board->board[xc][yc] == 'k')
         return 1;
       else if (board->board[xc][yc] != 48)
         break;
@@ -234,7 +234,7 @@ void moveDiagonal(int x, int y, std::vector<Board>* moves, Board* board, bool co
 
 void rookMove(int x, int y, std::vector<Board>* moves, Board* board, bool color) {
   if (color) {
-    for (int yc = y + 1; yc >= 0; yc++) {
+    for (int yc = y + 1; yc < 8; yc++) {
       if (x >= 0 && yc >= 0 && x < 8 && yc < 8 && board->board[x][yc] == 48) { // looking for '0', advance
         moves->push_back(newBoard(board, x, y, x, yc));
       }
@@ -258,7 +258,7 @@ void rookMove(int x, int y, std::vector<Board>* moves, Board* board, bool color)
         break;
     }
 
-    for (int xc = x + 1; xc >= 0; xc++) {
+    for (int xc = x + 1; xc < 8; xc++) {
       if (xc >= 0 && y >= 0 && xc < 8 && y < 8 && board->board[xc][y] == 48) { // looking for '0', advance
         moves->push_back(newBoard(board, x, y, xc, y));
       }
@@ -270,20 +270,21 @@ void rookMove(int x, int y, std::vector<Board>* moves, Board* board, bool color)
         break;
     }
 
-    for (int xc = x - 1; x >= 0; xc--) {
-      if (xc >= 0 && y >= 0 && xc < 8 && y < 8 && board->board[xc][y] == 48) { // looking for '0', advance
-        moves->push_back(newBoard(board, x, y, xc, y));
+    if (x != 0)
+      for (int xc = x - 1; x >= 0; xc--) {
+        if (xc >= 0 && y >= 0 && xc < 8 && y < 8 && board->board[xc][y] == 48) { // looking for '0', advance
+          moves->push_back(newBoard(board, x, y, xc, y));
+        }
+        else if (xc >= 0 && y >= 0 && xc < 8 && y < 8 && board->board[xc][y] > 96) { // if black piece, add pos, dont advance
+          moves->push_back(newBoard(board, x, y, xc, y));
+          break;
+        }
+        else if (board->board[xc][y] < 96) // hit own piece
+          break;
       }
-      else if (xc >= 0 && y >= 0 && xc < 8 && y < 8 && board->board[xc][y] > 96) { // if black piece, add pos, dont advance
-        moves->push_back(newBoard(board, x, y, xc, y));
-        break;
-      }
-      else if (board->board[xc][y] < 96) // hit own piece
-        break;
-    }
   }
   else {
-    for (int yc = y + 1; yc >= 0; yc++) {
+    for (int yc = y + 1; yc < 8; yc++) {
       if (x >= 0 && yc >= 0 && x < 8 && yc < 8 && board->board[x][yc] == 48) { // looking for '0', advance
         moves->push_back(newBoard(board, x, y, x, yc));
       }
@@ -307,7 +308,7 @@ void rookMove(int x, int y, std::vector<Board>* moves, Board* board, bool color)
         break;
     }
 
-    for (int xc = x + 1; xc >= 0; xc++) {
+    for (int xc = x + 1; xc < 8; xc++) {
       if (xc >= 0 && y >= 0 && xc < 8 && y < 8 && board->board[xc][y] == 48) { // looking for '0', advance
         moves->push_back(newBoard(board, x, y, xc, y));
       }
@@ -319,17 +320,18 @@ void rookMove(int x, int y, std::vector<Board>* moves, Board* board, bool color)
         break;
     }
 
-    for (int xc = x - 1; x >= 0; xc--) {
-      if (xc >= 0 && y >= 0 && xc < 8 && y < 8 && board->board[xc][y] == 48) { // looking for '0', advance
-        moves->push_back(newBoard(board, x, y, xc, y));
+    if (x != 0)
+      for (int xc = x - 1; x >= 0; xc--) {
+        if (xc >= 0 && y >= 0 && xc < 8 && y < 8 && board->board[xc][y] == 48) { // looking for '0', advance
+          moves->push_back(newBoard(board, x, y, xc, y));
+        }
+        else if (xc >= 0 && y >= 0 && xc < 8 && y < 8 && board->board[xc][y] < 96) { // if black piece, add pos, dont advance
+          moves->push_back(newBoard(board, x, y, xc, y));
+          break;
+        }
+        else if (board->board[xc][y] > 96) // hit own piece
+          break;
       }
-      else if (xc >= 0 && y >= 0 && xc < 8 && y < 8 && board->board[xc][y] < 96) { // if black piece, add pos, dont advance
-        moves->push_back(newBoard(board, x, y, xc, y));
-        break;
-      }
-      else if (board->board[xc][y] > 96) // hit own piece
-        break;
-    }
   }
   return;
 }
@@ -357,6 +359,11 @@ void genMove(Board* board, bool color, std::vector<Board>* moves) {
             }
           }
           // TODO castling
+          if (board->castlingRights[0] && board->board[5][0] == 48 && board->board[6][0] == 48 && !isInCheck(board, 1, 5, 0))
+            moves->push_back(newBoard(board, 4, 0, 6, 0));
+
+          if (board->castlingRights[1] && board->board[3][0] == 48 && board->board[2][0] == 48 && board->board[1][0] == 48 && !isInCheck(board, 1, 3, 0))
+            moves->push_back(newBoard(board, 4, 0, 2, 0));
           break;
 
         case 'R':

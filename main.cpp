@@ -2,34 +2,27 @@
 #include <string>
 #include "board.h"
 
-#include "genmove.h"
+#include "genmove/genmove.h"
 #include "search.h"
 #include<fstream>
 #include <vector>
 
 int main(int argc, char *argv[]) {
 
+  bool color = 1;
 
-  //char s[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
-  char s[] = "4k3/8/8/8/8/8/3r3r/R3K2R";
-  //char s[] = "r7/kbQ2p2/1pP4p/p2R4/4P3/8/2PP1PPP/1NB1KBNR";
-  //char s[] = "r1bq1rk1/1p3pp1/p1np4/2pPp2p/2P4P/2NP2P1/PP3PB1/R1Q2RK1";
-  //char s[] = "r1bq1rk1/1p3pp1/p1Pp4/2p1p2p/2P4P/2NP2P1/PP3PB1/R1Q2RK1";
-  //char s[] = "r1bq1rk1/5pp1/p1pp4/2p1p2p/2P4P/2NP2P1/PP3PB1/R1Q2RK1";
+  char s[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+
   Board board;
   board.fromFen(s);
   //wchar_t star = 0x2656;
   //wprintf(L"\x1b[37;45m%lc\x1b[1;37;40m", 0x2656);
 
+
+
   std::string input;
 
   bool done = false;
-
-  printf("%c\n", board.board[4][0]);
-  std::vector<Board> moves;
-  genMove(&board, 1, &moves);
-  for (int i = 0; i < moves.size(); i++)
-    moves[i].lastMove();
 
   while (!done) {
     std::getline(std::cin, input);
@@ -49,25 +42,32 @@ int main(int argc, char *argv[]) {
     }
 
     if (input.substr(0, 23) == "position startpos moves") {
+      color = 1;
+      board.color = 1;
       for (int i = 24; i < input.size(); i += 5) {
         if (input.size() > i + 4 && input[i + 4] != ' ') {
           int from[] = {input[i] - 97, input[i + 1] - 49};
           int to[] = {input[i + 2] - 97, input[i + 3] - 49};
           board.makeMove(from, to, true);
           i++;
+          color = !color;
         }
         else {
           int from[] = {input[i] - 97, input[i + 1] - 49};
           int to[] = {input[i + 2] - 97, input[i + 3] - 49};
           board.makeMove(from, to);
+          color = !color;
         }
       }
 
     }
 
     if (input.substr(0, 2) == "go") {
-      alphaBetaRoot(board, -10000, 10000, 5);
+      alphaBetaRoot(board, -10000, 10000, 6, color);
     }
+
+    if (input == "eval")
+      printf("%f", board.eval());
 
     if (input == "print") {
       board.print();

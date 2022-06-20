@@ -31,15 +31,17 @@
 
 class Board {
   public:
+  double eval();
   char* fen;
   std::vector<std::array<std::array<int, 2>, 2>> moves;
   bool castlingRights[4] = {1, 1, 1, 1};
   char board[8][8];
   float pawneval[8][8] = {{0, 0, 0, 0, 0, 0, 0, 0}, {1, 1, 1, 0.8f, 0.8f, 1.1f, 1.1f, 1.1f}, {0.75f, 0.5f, 0.5f, 0.8f, 0.8f, 1.1f, 1.1f, 1.1f}, {1.2f, 1.2f, 1.2f, 1.5f, 1.5f, 0.5f, 0.5f, 0.5f}, {1.75f, 1.75f, 1.75f, 1, 1, 0.5f, 0.5f, 0.5f}, {2, 2, 2, 1, 1, 1.75f, 1.75f, 1.75f}, {3, 3, 3, 3, 3, 3, 3, 3}, {10, 10, 10, 10, 10, 10, 10, 10}};
   bool promotion = false;
+  bool color = true;
 
   void makeMove(int from[2], int to[2], bool promotion_=false) {
-
+    color = !color;
     if (promotion)
       promotion = !promotion;
 
@@ -195,66 +197,6 @@ class Board {
   }
 
 
-  double eval() {
-    double eval = 0;
-    for (int x = 0; x < 8; x++) {
-      for (int y = 0; y < 8; y++) {
-        switch (board[x][y]) {
-        case 'P':
-          eval += pawneval[y][x];
-          break;
-
-        case 'p':
-          eval -= pawneval[7 - y][x];
-          break;
-
-        case 'N':
-          eval += KNIGHT;
-          break;
-
-        case 'n':
-          eval -= KNIGHT;
-          break;
-
-        case 'B':
-          eval += BISHOP;
-          break;
-
-        case 'b':
-          eval -= BISHOP;
-          break;
-
-        case 'R':
-          eval += ROOK;
-          break;
-
-        case 'r':
-          eval -= ROOK;
-          break;
-
-        case 'Q':
-          eval += QUEEN;
-          break;
-
-        case 'q':
-          eval -= QUEEN;
-          break;
-
-        case 'K':
-          eval += KING + 100;
-          break;
-
-        case 'k':
-          eval -= KING;
-          break;
-
-        }
-      }
-    }
-
-
-    return eval;
-  }
 };
 
 

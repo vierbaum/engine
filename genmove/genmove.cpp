@@ -5,7 +5,7 @@ bool isInCheck(Board* board, bool color, int x, int y) {
   int cDown = x + y; // y = -x + c => c = x + y
   int cUp = y - x; // y = x + c => c = y - x
 
-  if (color) {
+  if (board->color) {
     for (int xc = x; xc < 7; xc++) {
       if (board->board[xc][y] == 'r' || board->board[xc][y] == 'q')
         return 1;
@@ -203,29 +203,45 @@ void moveDiagonal(int x, int y, std::vector<Board>* moves, Board* board, bool co
   else {
     for (int xc = x - 1; xc >= 0; xc--) { // left Down
       int yc = cDown - xc;
-      if (yc >= 0 && yc < 8 && (board->board[xc][yc] == 48 || board->board[xc][yc] < 96))
+      if (yc >= 0 && yc < 8 && board->board[xc][yc] == 48)
         moves->push_back(newBoard(board, x, y, xc, yc));
+      else if (yc >= 0 && yc < 8 && board->board[xc][yc] < 96) {
+        moves->push_back(newBoard(board, x, y, xc, yc));
+        break;
+      }
       else
         break;
     }
     for (int xc = x - 1; xc >= 0; xc--) { // left Up
       int yc = xc + cUp;
-      if (yc >= 0 && yc < 8 && (board->board[xc][yc] == 48 || board->board[xc][yc] < 96))
+      if (yc >= 0 && yc < 8 && board->board[xc][yc] == 48)
         moves->push_back(newBoard(board, x, y, xc, yc));
+      else if (yc >= 0 && yc < 8 && board->board[xc][yc] < 96) {
+        moves->push_back(newBoard(board, x, y, xc, yc));
+        break;
+      }
       else
         break;
     }
     for (int xc = x + 1; xc < 8; xc++) { // right Down
       int yc = cDown - xc;
-      if (yc >= 0 && yc < 8 && (board->board[xc][yc] == 48 || board->board[xc][yc] < 96))
+      if (yc >= 0 && yc < 8 && board->board[xc][yc] == 48)
         moves->push_back(newBoard(board, x, y, xc, yc));
+      else if (yc >= 0 && yc < 8 && board->board[xc][yc] < 96) {
+        moves->push_back(newBoard(board, x, y, xc, yc));
+        break;
+      }
       else
         break;
     }
     for (int xc = x + 1; xc < 8; xc++) { // left Up
       int yc = xc + cUp;
-      if (yc >= 0 && yc < 8 && (board->board[xc][yc] == 48 || board->board[xc][yc] < 96))
+      if (yc >= 0 && yc < 8 && board->board[xc][yc] == 48)
         moves->push_back(newBoard(board, x, y, xc, yc));
+      else if (yc >= 0 && yc < 8 && board->board[xc][yc] < 96) {
+        moves->push_back(newBoard(board, x, y, xc, yc));
+        break;
+      }
       else
         break;
     }
@@ -337,13 +353,13 @@ void rookMove(int x, int y, std::vector<Board>* moves, Board* board, bool color)
 }
 
 
-void genMove(Board* board, bool color, std::vector<Board>* moves) {
+void genMove(Board* board, std::vector<Board>* moves) {
   int nightMoves[8][2] = {{-1, 2}, {1, 2}, {2, 1}, {2, -1}, {-1, -2}, {1, -2}, {-2, -1}, {-2, 1}};
 
 
   int cDown; // y = -x + c => c = x + y
   int cUp; // y = x + c => c = y - x
-  if (color) {
+  if (board->color) {
     for (int x = 0; x <= 7; x++) {
       for (int y = 0; y <= 7; y++) {
         cDown = x + y; // y = -x + c => c = x + y
@@ -359,10 +375,10 @@ void genMove(Board* board, bool color, std::vector<Board>* moves) {
             }
           }
           // TODO castling
-          if (board->castlingRights[0] && board->board[5][0] == 48 && board->board[6][0] == 48 && !isInCheck(board, 1, 5, 0))
+          if (board->castlingRights[0] && board->board[5][0] == 48 && board->board[6][0] == 48 && !isInCheck(board, 1, 5, 0) && !isInCheck(board, 0, 4, 0))
             moves->push_back(newBoard(board, 4, 0, 6, 0));
 
-          if (board->castlingRights[1] && board->board[3][0] == 48 && board->board[2][0] == 48 && board->board[1][0] == 48 && !isInCheck(board, 1, 3, 0))
+          if (board->castlingRights[1] && board->board[3][0] == 48 && board->board[2][0] == 48 && board->board[1][0] == 48 && !isInCheck(board, 1, 3, 0) && !isInCheck(board, 0, 4, 0))
             moves->push_back(newBoard(board, 4, 0, 2, 0));
           break;
 
@@ -429,6 +445,11 @@ void genMove(Board* board, bool color, std::vector<Board>* moves) {
             }
           }
           // TODO castling
+          if (board->castlingRights[2] && board->board[5][7] == 48 && board->board[6][7] == 48 && !isInCheck(board, 0, 5, 7) && !isInCheck(board, 0, 4, 7))
+            moves->push_back(newBoard(board, 4, 0, 6, 0));
+
+          if (board->castlingRights[3] && board->board[3][7] == 48 && board->board[2][7] == 48 && board->board[1][7] == 48 && !isInCheck(board, 0, 3, 7) && !isInCheck(board, 0, 4, 7))
+            moves->push_back(newBoard(board, 4, 0, 2, 0));
           break;
 
         case 'r':

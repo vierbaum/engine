@@ -185,11 +185,9 @@ double quiescenceSearch(Board board, double alpha, double beta, int qDepth) {
 
       if (score >= beta) {
         return beta;
-        moves[i].moveHist();
       }
       if (score > alpha) {
         alpha = score;
-        moves[i].moveHist();
       }
 
     }

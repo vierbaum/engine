@@ -5,4 +5,5 @@
 
 std::vector<Board>* genmoves(Board, std::vector<Board>*);
 
+Board newMove (Board, int, int);
 #endif // MOVEGEN_H_

@@ -11,7 +11,7 @@
 #define SIZEY 12
 
 #define EMPTY 12
-#define OUTOFBOARDER 13
+#define OUTOFBOUNDS 13
 
 /*
 #define wP 'P'
@@ -54,7 +54,8 @@ enum {
   A8 = 91, B8, C8, D8, E8, F8, G8, H8
 };
 
-const char PIECECHARS[] = {'P', 'N', 'B', 'R', 'Q', 'K', 'p', 'n', 'b', 'r', 'q', 'k', ' ', '.'};
+const char PIECECHARS[] = {'P', 'N', 'B', 'R', 'Q', 'K', 'p', 'n', 'b', 'r', 'q', 'k', '-', '.'};
+const char FILES[] = {'A', 'B', 'C', 'C', 'E', 'F', 'G', 'H'};
 
 class Board {
   public:
@@ -66,6 +67,21 @@ class Board {
   int numPieces[13] = {0};
   int pieceList[13][10];
   std::vector<std::array<int, 2>> hist;
+  unsigned long long bbW;
+  unsigned long long bbB;
+
+
+  void genBitBoards () {
+    bbW = 0;
+    bbB = 0;
+    for (int i = 0; i < SIZE; i++) {
+      if (board[i] <= wK)
+        bbW |= (1ULL << B120to64(i));
+      else if (board[i] > wK && board[i] < EMPTY)
+        bbB |= (1ULL << B120to64(i));
+
+    }
+  }
 
   void makeMove120(int from, int to) {
     board[to] = board[from];
@@ -76,14 +92,33 @@ class Board {
 
   void fromFen (char* fen) {
     for (int pos = 0; pos < SIZE; pos++) {
-      board[pos] = OUTOFBOARDER;
+      board[pos] = OUTOFBOUNDS;
     }
 
+    int x = 0;
+    int y = 0;
     char c;
-    int pos = 0;
-    for (int i = strlen(fen) - 1; i >= 0; i--) {
+    for (int i = 0; i < strlen(fen); i++) {
       c = fen[i];
-      if (c < 'z' && c > 'A') { // piece
+      if (c == '/') {
+        x = 0;
+        y++;
+      }
+      else if (c == '1') {
+        board[B64to120((7 - y) * 8 + x)] = EMPTY;
+        x++;
+      }
+
+      else if (c > '1' && c < '9') {
+        for (int p = x; p < c - '0'; p++) {
+          board[B64to120((7 - y) * 8 + p)] = EMPTY;
+          x += 1;
+        }
+
+      }
+      else {
+        int pos = (7 - y) * 8 + x;
+        //printf("%d, %c, %d, %d, %d\n", pos, c, i, x, y);
         switch (c) {
         case 'P':
           board[B64to120(pos)] = wP;
@@ -146,19 +181,9 @@ class Board {
           numPieces[bK]++;
           break;
         }
-        pos++;
-      }
-      if (c > '0' && c < '9') {
-        for (int i = 0; i < c - '0'; i++) {
-          board[B64to120(pos)] = EMPTY;
-          pos++;
-        }
+        x += 1;
       }
     }
-    for (int i = 0; i <= bK; i++)
-      for (int a = 0; a < numPieces[i]; a++)
-        printf("%d %d %d\n", i, numPieces[i], pieceList[i][a]);
-
   }
 
   int B64to120 (int square) {
@@ -175,21 +200,26 @@ class Board {
     return square - 1;
   }
 
+
   void print() {
-    for (int i = 0; i < SIZE; i++)
-      if ((i + 1) % SIZEX == 0)
-        printf("%c\n", PIECECHARS[board[i]]);
-      else
-        printf("%c", PIECECHARS[board[i]]);
-    printf("\n");
+    for (int y = SIZEY - 1; y >= 0; y--) {
+      for (int x = 0; x < SIZEX; x++)
+          printf("%c", PIECECHARS[board[y * SIZEX + x]]);
+      printf("\n");
+    }
   }
 
   void lastMove() {
-    int from = hist[hist.size() - 1][0];
-    int to = hist[hist.size() - 1][1];
-    printf("%d %d\n", B120to64(from), B120to64(to));
+    int from = B120to64(hist[hist.size() - 1][0]);
+    int fromx = from % 8;
+    int fromy = from / 8;
+    int to = B120to64(hist[hist.size() - 1][1]);
+    int tox = to % 8;
+    int toy = to / 8;
+    printf("%c%d %c%d\n", FILES[fromx], fromy + 1, FILES[tox], toy + 1);
   }
 };
 
+void printBitBoard (unsigned long long);
 
 #endif // BOARD_H_

@@ -1,4 +1,5 @@
 #include "main.h"
+#include "board.h"
 #include "search.h"
 
 int main(int argc, char *argv[]) {
@@ -11,7 +12,9 @@ int main(int argc, char *argv[]) {
   board.genBitBoards();
   //printBitBoard(board.bbW);
   //printBitBoard(board.bbB);
-  alphaBetaMax(&uciobj, board, -100000, 100000, 9);
-  uciobj.moves.printHist();
+  //alphaBetaMax(&uciobj, board, -100000, 100000, 8);
+  //uciobj.moves.printHist();
+
+  readEval(&board.evalllist);
   return 0;
 }

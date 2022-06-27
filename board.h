@@ -54,6 +54,7 @@ class Board {
   std::vector<std::array<int, 2>> hist;
   unsigned long long bbW;
   unsigned long long bbB;
+  double evalllist[6][3][64];
 
 
   void genBitBoards () {
@@ -104,8 +105,21 @@ class Board {
       castlingRights[2] = false;
       castlingRights[3] = false;
     } else {
-      board[to] = board[from];
-      board[from] = EMPTY;
+      if (board[to] != EMPTY) {
+        //numPieces[board[to]]--;
+        board[to] = board[from];
+        board[from] = EMPTY;
+        genPiecelist();
+      } else {
+        for (int i = 0; i < numPieces[board[from]]; i++)
+          if (pieceList[board[from]][i] == from) {
+            pieceList[board[from]][i] = to;
+            break;
+          }
+        board[to] = board[from];
+        board[from] = EMPTY;
+      }
+
     }
 
     // TODO everything
@@ -128,7 +142,6 @@ class Board {
       castlingRights[3] = false;
     }
     genBitBoards();
-    genPiecelist();
     color = !color;
   }
 
@@ -268,15 +281,7 @@ class Board {
     int to = B120to64(hist[hist.size() - 1][1]);
     int tox = to % 8;
     int toy = to / 8;
-    printf("%c%d%c%d\n", FILES[fromx], fromy + 1, FILES[tox], toy + 1, hist[hist.size() - 1][0], hist[hist.size() - 1][1]);
-  }
-
-  double eval() {
-    double eval;
-    for (int i = 0; i < SIZE; i++) 
-      if (board[i] != EMPTY && board[i] != OUTOFBOUNDS)
-        eval += pieceValue[board[i]];
-    return eval;
+    printf("%c%d%c%d\n", FILES[fromx], fromy + 1, FILES[tox], toy + 1);
   }
 
   void printHist() {
@@ -287,7 +292,7 @@ class Board {
       int to = B120to64(hist[i][1]);
       int tox = to % 8;
       int toy = to / 8;
-      printf("%c%d%c%d\n", FILES[fromx], fromy + 1, FILES[tox], toy + 1, hist[hist.size() - 1][0], hist[hist.size() - 1][1]);
+      printf("%c%d%c%d\n", FILES[fromx], fromy + 1, FILES[tox], toy + 1);
     }
   }
 
@@ -302,8 +307,18 @@ class Board {
       }
     }
   }
+
+  double eval() {
+    double eval;
+    for (int i = 0; i < SIZE; i++) 
+      if (board[i] != EMPTY && board[i] != OUTOFBOUNDS)
+        eval += pieceValue[board[i]];
+    return eval;
+  }
 };
 
 void printBitBoard (unsigned long long);
+
+void readEval(double(*) [6][3][64]);
 
 #endif // BOARD_H_

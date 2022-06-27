@@ -13,21 +13,6 @@
 #define EMPTY 12
 #define OUTOFBOUNDS 13
 
-/*
-#define wP 'P'
-#define wN 'N'
-#define wB 'B'
-#define wR 'R'
-#define wQ 'Q'
-#define wK 'K'
-
-#define bP 'p'
-#define bN 'n'
-#define bB 'b'
-#define bR 'r'
-#define bQ 'q'
-#define bK 'k'
-*/
 #define wP 0
 #define wN 1
 #define wB 2
@@ -55,12 +40,12 @@ enum {
 };
 
 const char PIECECHARS[] = {'P', 'N', 'B', 'R', 'Q', 'K', 'p', 'n', 'b', 'r', 'q', 'k', '-', '.'};
-const char FILES[] = {'A', 'B', 'C', 'C', 'E', 'F', 'G', 'H'};
-
+const char FILES[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'};
+const double pieceValue[] = {1, 3, 3.25, 5, 10, 1000, -1, -3, -3.25, -5, -10, -750};
 class Board {
   public:
   char board[SIZE];
-  bool castlingRihghts[4] = {1, 1, 1, 1};
+  bool castlingRights[4] = {1, 1, 1, 1};
   bool color = 1;
   int enPassant;
   // TODO
@@ -84,10 +69,67 @@ class Board {
   }
 
   void makeMove120(int from, int to) {
-    board[to] = board[from];
-    board[to] = EMPTY;
+    enPassant = false;
+
+    // castling
+    if (from == E1 && to == C1 && castlingRights[0]) { // white queenside
+      board[C1] = wK;
+      board[D1] = wR;
+      board[A1] = EMPTY;
+      board[E1] = EMPTY;
+      castlingRights[0] = false;
+      castlingRights[1] = false;
+    }
+    else if (from == 25 && to == 27 && castlingRights[1]) { // white kingside
+      board[G1] = wK;
+      board[F1] = wR;
+      board[G1] = EMPTY;
+      board[E1] = EMPTY;
+      castlingRights[0] = false;
+      castlingRights[1] = false;
+    }
+    else if (from == 95 && to == 93 && castlingRights[2]) { // black queenside
+      board[C8] = wK;
+      board[D8] = wR;
+      board[A8] = EMPTY;
+      board[E8] = EMPTY;
+      castlingRights[2] = false;
+      castlingRights[3] = false;
+    }
+    else if (from == 95 && to == 97 && castlingRights[3]) { // white kingside
+      board[G8] = wK;
+      board[F8] = wR;
+      board[G8] = EMPTY;
+      board[E8] = EMPTY;
+      castlingRights[2] = false;
+      castlingRights[3] = false;
+    } else {
+      board[to] = board[from];
+      board[from] = EMPTY;
+    }
+
     // TODO everything
     hist.push_back({from, to});
+
+    if (from == 21 && castlingRights[0])
+      castlingRights[0] = false;
+    else if (from == 28 && castlingRights[1])
+      castlingRights[1] = false;
+    else if (from == 91 && castlingRights[2])
+      castlingRights[2] = false;
+    else if (from == 98 && castlingRights[3])
+      castlingRights[3] = false;
+    else if (from == 25) {
+      castlingRights[0] = false;
+      castlingRights[1] = false;
+    }
+    else if (from == 95 && castlingRights[3]) {
+      castlingRights[2] = false;
+      castlingRights[3] = false;
+    }
+    genBitBoards();
+    genPiecelist();
+    color = !color;
   }
 
   void fromFen (char* fen) {
@@ -109,12 +151,17 @@ class Board {
         x++;
       }
 
-      else if (c > '1' && c < '9') {
-        for (int p = x; p < c - '0'; p++) {
+      else if (c > '1' && c < '8') {
+        for (int p = x; p <= c - '0'; p++) {
           board[B64to120((7 - y) * 8 + p)] = EMPTY;
           x += 1;
         }
 
+      }
+      else if (c == '8') {
+        for (int cx = 0; cx < 8; cx++) {
+          board[B64to120((7 - y) * 8 + cx)] = EMPTY;
+        }
       }
       else {
         int pos = (7 - y) * 8 + x;
@@ -210,13 +257,50 @@ class Board {
   }
 
   void lastMove() {
+    if (hist.size() == 0) {
+      printf("\n");
+      return;
+    }
+
     int from = B120to64(hist[hist.size() - 1][0]);
     int fromx = from % 8;
     int fromy = from / 8;
     int to = B120to64(hist[hist.size() - 1][1]);
     int tox = to % 8;
     int toy = to / 8;
-    printf("%c%d %c%d\n", FILES[fromx], fromy + 1, FILES[tox], toy + 1);
+    printf("%c%d%c%d\n", FILES[fromx], fromy + 1, FILES[tox], toy + 1, hist[hist.size() - 1][0], hist[hist.size() - 1][1]);
+  }
+
+  double eval() {
+    double eval;
+    for (int i = 0; i < SIZE; i++) 
+      if (board[i] != EMPTY && board[i] != OUTOFBOUNDS)
+        eval += pieceValue[board[i]];
+    return eval;
+  }
+
+  void printHist() {
+    for (int i = 0; i < hist.size(); i++) {
+      int from = B120to64(hist[i][0]);
+      int fromx = from % 8;
+      int fromy = from / 8;
+      int to = B120to64(hist[i][1]);
+      int tox = to % 8;
+      int toy = to / 8;
+      printf("%c%d%c%d\n", FILES[fromx], fromy + 1, FILES[tox], toy + 1, hist[hist.size() - 1][0], hist[hist.size() - 1][1]);
+    }
+  }
+
+  void genPiecelist() {
+    for (int i = 0; i <= bK; i++)
+      numPieces[i] = 0;
+
+    for (int pos = 0; pos < SIZE; pos++) {
+      if (board[pos] <= bK) {
+        pieceList[board[pos]][numPieces[board[pos]]] = pos;
+        numPieces[board[pos]]++;
+      }
+    }
   }
 };
 

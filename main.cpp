@@ -8,13 +8,15 @@ int main(int argc, char *argv[]) {
   UCI uciobj;
   Board board;
   board.fromFen(s);
-
   board.genBitBoards();
-  //printBitBoard(board.bbW);
-  //printBitBoard(board.bbB);
-  //alphaBetaMax(&uciobj, board, -100000, 100000, 8);
+  readEval(&board.evalllist);
+
+  alphaBetaRoot(&uciobj, &board, -100000, 100000, 7);
   //uciobj.moves.printHist();
 
-  readEval(&board.evalllist);
+  //alphaBetaMax(&uciobj, &board, -100000, 100000, 2);
+  uciobj.moves.printHist();
+  printf("%d", uciobj.nodes);
+  
   return 0;
 }

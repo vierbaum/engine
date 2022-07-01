@@ -54,7 +54,8 @@ class Board {
   std::vector<std::array<int, 2>> hist;
   unsigned long long bbW;
   unsigned long long bbB;
-  double evalllist[6][3][64];
+  double evalllist[12][3][64];
+  int gamephase = 0;
 
 
   void genBitBoards () {
@@ -309,16 +310,19 @@ class Board {
   }
 
   double eval() {
-    double eval;
-    for (int i = 0; i < SIZE; i++) 
-      if (board[i] != EMPTY && board[i] != OUTOFBOUNDS)
-        eval += pieceValue[board[i]];
+    double eval = 0;
+    for (int i = 0; i < 64; i++) 
+      if (board[B64to120(i)] != EMPTY && board[B64to120(i)] != OUTOFBOUNDS) {
+        eval += evalllist[board[B64to120(i)]][gamephase][i];
+      }
     return eval;
   }
 };
 
 void printBitBoard (unsigned long long);
 
-void readEval(double(*) [6][3][64]);
+void readEval(double(*) [12][3][64]);
+
+void printPieceTable(double table[64]);
 
 #endif // BOARD_H_

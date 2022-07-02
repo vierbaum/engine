@@ -15,6 +15,7 @@ struct Data {
   int n;
   bool color;
   UCI* uci;
+  int* currMove;
 };
 
 double alphaBetaMax(UCI*, Board*, double, double, int);

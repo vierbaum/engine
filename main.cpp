@@ -11,7 +11,7 @@ int main(int argc, char *argv[]) {
   board.genBitBoards();
   readEval(&board.evalllist);
 
-  alphaBetaRoot(&uciobj, &board, -100000, 100000, 7);
+  alphaBetaRoot(&uciobj, &board, -100000, 100000, 6);
   //uciobj.moves.printHist();
 
   //alphaBetaMax(&uciobj, &board, -100000, 100000, 2);

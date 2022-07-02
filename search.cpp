@@ -67,13 +67,15 @@ double alphaBetaRoot(UCI *uci, Board* board, double alpha, double beta, int dept
   if (cutoff * 4 < moves.size() - 1)
     slices[3].push_back(moves[cutoff * 3 + 1]);
 
+  int cMove = 0;
   Data data[4];
   for (int i = 0; i < 4; i++) {
     data[i].depthleft = depthleft;
     data[i].bmove = &bmove;
-    data[i].moves = slices[i];
+    data[i].moves = moves;
     data[i].n = i;
     data[i].uci = uci;
+    data[i].currMove = &cMove;
   }
 
   std::thread t1(searchThreaded, &data[0]);
@@ -94,14 +96,16 @@ double searchThreaded (Data* data) {
   Board* bmove = data->bmove;
   UCI* uci = data->uci;
 
+  int i;
   double score = 0;
-  for (int i = 0; i < moves.size(); i++) {
   loop:
-  printf("info Thread %d, currmove ", data->n);
-  moves[i].lastMove();
+  if (*(data->currMove) < moves.size()) {
+    i = *(data->currMove);
+    (*(data->currMove))++;
     if (!moves[i].color) { // max
       score = alphaBetaMin(uci, &moves[i], gAlpha, gBeta, depthleft - 1);
-
+      printf("info Thread %d, moveNum %d of %d, %f currmove ", data->n, i, moves.size() - 1, score);
+      moves[i].lastMove();
       if (score >= gBeta) {
         i++;
         goto loop;
@@ -114,6 +118,8 @@ double searchThreaded (Data* data) {
     else { // min
       double score;
 
+      printf("info Thread %d, moveNum %d of %d, currmove ", data->n, i, moves.size() - 1);
+      moves[i].lastMove();
       score = alphaBetaMax(uci, &moves[i], gAlpha, gBeta, depthleft - 1);
       if (score <= gAlpha) {
         i++;
@@ -124,6 +130,7 @@ double searchThreaded (Data* data) {
         uci->moves = moves[i];
       }
     }
+    goto loop;
   }
   return 0;
 }

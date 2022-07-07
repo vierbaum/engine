@@ -1,8 +1,9 @@
 #ifndef SEARCH_H_
 #define SEARCH_H_
 
+#include "movegen.h"
 #include "board.h"
-#include "genmove/genmove.h"
+#include "uci.h"
 #include <vector>
 #include <thread>
 #include <cmath>
@@ -13,16 +14,15 @@ struct Data {
   Board* bmove;
   int n;
   bool color;
+  UCI* uci;
+  int* currMove;
 };
 
-double alphaBetaMin(Board, double, double, int);
+double alphaBetaMax(UCI*, Board*, double, double, int);
 
-double alphaBetaMax(Board, double, double, int);
+double alphaBetaMin(UCI*, Board*, double, double, int);
 
-double alphaBetaRoot(Board, double, double, int, bool);
+double alphaBetaRoot(UCI*, Board*, double, double, int);
 
 double searchThreaded(Data*);
-
-double quiescenceSearch(Board, double, double, int);
-
 #endif // SEARCH_H_

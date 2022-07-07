@@ -1,9 +1,10 @@
 #ifndef MAIN_H_
 #define MAIN_H_
 
-#include <iostream>
 #include "board.h"
-#include "uci.h"
-#include "movegen.h"
+
+#define U64 unsigned long long
+
+void initAll();
 
 #endif // MAIN_H_

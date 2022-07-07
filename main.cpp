@@ -1,22 +1,30 @@
 #include "main.h"
 #include "board.h"
-#include "search.h"
+
+U64 pawnAttacks[2][64];
+U64 knightAttacks[64];
+U64 kingAttacks[2][64];
+U64 rookMN[64];
+U64 bishopMN[64];
+U64 bishopAttacks[64][512];
+U64 rookAttacks[64][4096];
 
 int main(int argc, char *argv[]) {
   char s[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
 
-  UCI uciobj;
-  Board board;
-  board.fromFen(s);
-  board.genBitBoards();
-  readEval(&board.evalllist);
+  //initAll();
+  U64 board = 0ULL;
 
-  alphaBetaRoot(&uciobj, &board, -100000, 100000, 6);
-  //uciobj.moves.printHist();
+  initAll();
+  initSliderAttacks();
 
-  //alphaBetaMax(&uciobj, &board, -100000, 100000, 2);
-  uciobj.moves.printHist();
-  printf("%d", uciobj.nodes);
-  
-  return 0;
+
+
+}
+
+void initAll() {
+  initPawnAttacks();
+  initKnightAttacks();
+  initKingAttacks();
+  initMagicNumbers();
 }

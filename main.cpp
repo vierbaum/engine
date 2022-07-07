@@ -15,11 +15,14 @@ int main(int argc, char *argv[]) {
   //initAll();
   U64 board = 0ULL;
 
+int count = 0;
   initAll();
-  initSliderAttacks();
 
-
-
+  for (int i = 0; i < 64; i++)
+    for (int a = 0; a < 4096; a++)
+      if (rookAttacks[i][a])
+        printf("%llu\n", rookAttacks[i][a]);
+  return 0;
 }
 
 void initAll() {
@@ -27,4 +30,5 @@ void initAll() {
   initKnightAttacks();
   initKingAttacks();
   initMagicNumbers();
+  initSliderAttacks();
 }

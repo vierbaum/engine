@@ -1,14 +1,29 @@
 #include "board.h"
 
-U64 random_uint64() {
-  U64 u1, u2, u3, u4;
-  u1 = (U64)(random()) & 0xFFFF; u2 = (U64)(random()) & 0xFFFF;
-  u3 = (U64)(random()) & 0xFFFF; u4 = (U64)(random()) & 0xFFFF;
-  return u1 | (u2 << 16) | (u3 << 32) | (u4 << 48);
-}
+unsigned int random_state = 1804289383;
 
-U64 random_uint64_fewbits() {
-  return random_uint64() & random_uint64() & random_uint64();
+unsigned int random32() {
+    // get current state
+    unsigned int number = random_state;
+    
+    // XOR shift algorithm
+    number ^= number << 13;
+    number ^= number >> 17;
+    number ^= number << 5;
+    
+    // update random number state
+    random_state = number;
+    
+    // return random number
+    return number;
+}
+U64 random64() {
+    U64 u1, u2, u3, u4;
+    u1 = (U64)(random32()) & 0xFFFF;
+    u2 = (U64)(random32()) & 0xFFFF;
+    u3 = (U64)(random32()) & 0xFFFF;
+    u4 = (U64)(random32()) & 0xFFFF;
+    return u1 | (u2 << 16) | (u3 << 32) | (u4 << 48);
 }
 
 int transform(U64 b, U64 magic, int bits) {
@@ -337,6 +352,11 @@ U64 setOccupancy(int index, int bits, U64 m) {
   }
   return result;
 }
+
+U64 genMagicNumber() {
+    return random64() & random64() & random64();
+}
+
 U64 findMagicNumber(int sq, int m, int bishop) {
   U64 mask, b[4096], a[4096], used[4096], magic;
   int i, j, k, n, fail;
@@ -351,11 +371,13 @@ U64 findMagicNumber(int sq, int m, int bishop) {
     //printf("%llu %llu\n", a[i], b[i]);
   }
   for(k = 0; k < 100000000; k++) {
-    magic = random_uint64_fewbits();
+    magic = genMagicNumber();
     if(countbits((mask * magic) & 0xFF00000000000000ULL) < 6) continue;
     for(i = 0; i < 4096; i++) used[i] = 0ULL;
     for(i = 0, fail = 0; !fail && i < (1 << n); i++) {
-      j = transform(b[i], magic, m);
+      //j = transform(b[i], magic, m);
+      j = (int)((b[i] * magic) >> (64 - m));
+
       //printf("%d\n", j);
       if(used[j] == 0ULL) {
         used[j] = a[i];
@@ -390,10 +412,8 @@ void initKingAttacks() {
 }
 
 void initSliderAttacks() {
-    U64 masks[64];
     for (int pos = 0; pos < 64; pos++) {
-        masks[pos] = genBishopOccupancy(pos);
-        U64 attackMask = masks[pos];
+        U64 attackMask = genBishopOccupancy(pos);
         int bits = countbits(attackMask);
         int occInd = (1 << bits);
 
@@ -403,17 +423,25 @@ void initSliderAttacks() {
             bishopAttacks[pos][magicIndex] = genBishopAttack(pos, occ);
         }
     }
+    for (int pos = 0; pos < 64; pos++) {
+        U64 attackMask = genRookOccupancy(pos);
+        int bits = countbits(attackMask);
+        int occInd = (1 << bits);
+
+        for (int index = 0; index < occInd; index++) {
+            U64 occ = setOccupancy(index, bits, attackMask);
+            int magicIndex = (occ * rookMN[pos]) >> (64 - rookOcckBits[pos]);
+            rookAttacks[pos][magicIndex] = genRookAttack(pos, occ);
+        }
+    }
 }
 
 void initMagicNumbers() {
-    for (int square = 0; square < 64; square++) {
-        bishopMN[square] = findMagicNumber(square, bishopOccBits[square], bishop);
+    for (int square = 0; square < 64; square++)
+        //printf("%llx\n", findMagicNumber(square, rookOcckBits[square], rook));
         rookMN[square] = findMagicNumber(square, rookOcckBits[square], rook);
 
-    }
-
     for (int square = 0; square < 64; square++)
-        //bishopMN[square] = findMagicNumber(square, bishopOccBits[square], bishop);
-        //printf("0x%llxULL,\n", findMagicNumber(square, bishopOccBits[square], bishop));
-        return;
+        //printf("%llx\n", findMagicNumber(square, bishopOccBits[square], bishop));
+        bishopMN[square] = findMagicNumber(square, bishopOccBits[square], bishop);
 }

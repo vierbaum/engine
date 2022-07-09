@@ -65,45 +65,45 @@ extern U64 bishopMN[64];
 extern U64 bishopAttacks[64][512];
 extern U64 rookAttacks[64][4096];
 
-void printBitBoard(U64);
 
-void setPiece(U64*, int);
-
-void removePiece(U64*, int);
-
-U64 random_uint64();
-
-U64 random_uint64_fewbits();
-
-int transform(U64 b, U64 magic, int bits);
-
-U64 genPawnAttacks(int, bool);
-
-U64 genKnightAttacks(int);
-
-U64 genKingAttacks(int, bool);
-
-U64 genBishopOccupancy(int);
-
-U64 genRookOccupancy(int);
+U64 findMagicNumber(int, int, U64);
 
 U64 genBishopAttack(int, U64);
 
+U64 genBishopOccupancy(int);
+
+U64 genKingAttacks(int, bool);
+
+U64 genKnightAttacks(int);
+
+U64 genPawnAttacks(int, bool);
+
 U64 genRookAttack(int, U64);
 
-int pop1stBit(U64*);
+U64 genRookOccupancy(int);
 
-U64 setOccupancy(int, int, U64);
+void initKingAttacks();
 
-U64 findMagicNumber(int, int, U64);
+void initKnightAttacks();
 
 void initMagicNumbers();
 
 void initPawnAttacks();
 
-void initKnightAttacks();
-
-void initKingAttacks();
-
 void initSliderAttacks();
+
+int pop1stBit(U64*);
+
+void printBitBoard(U64);
+
+unsigned int random32();
+
+U64 random64();
+
+void removePiece(U64*, int);
+
+U64 setOccupancy(int, int, U64);
+
+void setPiece(U64*, int);
+
 #endif // BOARD_H_

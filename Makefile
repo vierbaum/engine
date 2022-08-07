@@ -5,8 +5,8 @@
 # @version 0.1
 
 compile:
-	$(CXX) -c *.cpp -O3 -funroll-loops -march=native
-	$(CXX) *\.o -o engine -O3
+	$(CC) -O3 -funroll-loops -march=native -c *\.c
+	$(CC) *\.o -o engine -O3 -march=native
 	rm *\.o
 
 

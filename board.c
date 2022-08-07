@@ -1,19 +1,18 @@
 #include "board.h"
 
 unsigned int random_state = 1804289383;
+const char* unicodePieces[] = {"♙", "♘", "♗", "♖", "♕", "♔", "♟︎", "♞", "♝", "♜", "♛", "♚"};
 
 U64 findMagicNumber(int sq, int m, int bishop) {
   U64 mask, b[4096], a[4096], used[4096], magic;
   int i, j, k, n, fail;
 
   mask = bishop? genBishopOccupancy(sq) : genRookOccupancy(sq);
-  //printf("%llu\n", mask);
   n = countbits(mask);
 
   for(i = 0; i < (1 << n); i++) {
     b[i] = setOccupancy(i, n, mask);
     a[i] = bishop? genBishopAttack(sq, b[i]) : genRookAttack(sq, b[i]);
-    //printf("%llu %llu\n", a[i], b[i]);
   }
   for(k = 0; k < 100000000; k++) {
     magic = random64() & random64() & random64();
@@ -22,19 +21,15 @@ U64 findMagicNumber(int sq, int m, int bishop) {
     for(i = 0, fail = 0; !fail && i < (1 << n); i++) {
       j = (int)((b[i] * magic) >> (64 - m));
 
-      //printf("%d\n", j);
       if(used[j] == 0ULL) {
         used[j] = a[i];
-        //printf("%d %llu\n", i, used[j]);
       } 
       else if(used[j] != a[i]){
         fail = 1;
-        //printf("%d\n", i);
       } 
     }
     if(!fail) return magic;
   }
-  //printf("***Failed***\n");
   return 0ULL;
 }
 
@@ -84,7 +79,7 @@ U64 genBishopOccupancy(int sq) {
   return result;
 }
 
-U64 genKingAttacks(int pos, bool color) {
+U64 genKingAttacks(int pos) {
     U64 bb = 0ULL;
     U64 attacks = 0ULL;
     setPiece(&bb, pos);
@@ -134,8 +129,6 @@ U64 genKingAttacks(int pos, bool color) {
             attacks |= (bb >> 8);
             attacks |= (bb >> 7);
             attacks |= (bb >> 9);
-            if (color && (bb & (1ULL << E1)) != 0)
-                attacks |= ((1ULL << C1) | (1ULL << G1));
         }
         else if (pos <= H8) {
             attacks |= (bb >> 1);
@@ -143,8 +136,6 @@ U64 genKingAttacks(int pos, bool color) {
             attacks |= (bb << 8);
             attacks |= (bb << 7);
             attacks |= (bb << 9);
-            if (!color && (bb & (1ULL << E8)) != 0)
-                attacks |= ((1ULL << C8) | (1ULL << G8));
         }
         else {
             attacks |= (bb >> 1);
@@ -240,7 +231,7 @@ U64 genKnightAttacks(int pos) {
     return attacks;
 }
 
-U64 genPawnAttacks(int pos, bool color) {
+U64 genPawnAttacks(int pos, char color) {
     U64 bb = 0ULL;
     U64 attacks = 0ULL;
     setPiece(&bb, pos);
@@ -322,10 +313,12 @@ U64 genRookOccupancy(int pos) {
     return attacks;
 }
 
+
+
 void initMagicNumbers() {
     for (int square = 0; square < 64; square++)
         //printf("%llx\n", findMagicNumber(square, rookOcckBits[square], rook));
-        rookMN[square] = findMagicNumber(square, rookOcckBits[square], rook);
+        rookMN[square] = findMagicNumber(square, rookOccBits[square], rook);
 
     for (int square = 0; square < 64; square++)
         //printf("%llx\n", findMagicNumber(square, bishopOccBits[square], bishop));
@@ -333,9 +326,8 @@ void initMagicNumbers() {
 }
 
 void initKingAttacks() {
-    for (int color = 0; color < 2; color++)
-        for (int pos = 0; pos < 64; pos++)
-            kingAttacks[color][pos] = genKingAttacks(pos, color);
+    for (int pos = 0; pos < 64; pos++)
+        kingAttacks[pos] = genKingAttacks(pos);
 }
 
 void initKnightAttacks() {
@@ -351,24 +343,24 @@ void initPawnAttacks() {
 
 void initSliderAttacks() {
     for (int pos = 0; pos < 64; pos++) {
-        U64 attackMask = genBishopOccupancy(pos);
-        int bits = countbits(attackMask);
+        bishopMasks[pos] = genBishopOccupancy(pos);
+        int bits = countbits(bishopMasks[pos]);
         int occInd = (1 << bits);
 
         for (int index = 0; index < occInd; index++) {
-            U64 occ = setOccupancy(index, bits, attackMask);
+            U64 occ = setOccupancy(index, bits, bishopMasks[pos]);
             int magicIndex = (occ * bishopMN[pos]) >> (64 - bishopOccBits[pos]);
             bishopAttacks[pos][magicIndex] = genBishopAttack(pos, occ);
         }
     }
     for (int pos = 0; pos < 64; pos++) {
-        U64 attackMask = genRookOccupancy(pos);
-        int bits = countbits(attackMask);
+        rookMasks[pos] = genRookOccupancy(pos);
+        int bits = countbits(rookMasks[pos]);
         int occInd = (1 << bits);
 
         for (int index = 0; index < occInd; index++) {
-            U64 occ = setOccupancy(index, bits, attackMask);
-            int magicIndex = (occ * rookMN[pos]) >> (64 - rookOcckBits[pos]);
+            U64 occ = setOccupancy(index, bits, rookMasks[pos]);
+            int magicIndex = (occ * rookMN[pos]) >> (64 - rookOccBits[pos]);
             rookAttacks[pos][magicIndex] = genRookAttack(pos, occ);
         }
     }
@@ -381,6 +373,16 @@ int pop1stBit(U64 *bb) {
   return BitTable[(fold * 0x783a9b23) >> 26];
 }
 
+void printAttackedSquares(char cSide) {
+    int r = 0, f;
+    for (; r < 8; r++)
+    {
+        for (f = 0; f < 8; f++)
+            printf("%d ", isAttacked(r * 8 + f, side) != 0);
+        printf("\n");
+    }
+}
+
 void printBitBoard(U64 board) {
     for (int y = 0; y < 8; y++) {
         for (int x = 0; x < 8; x++)
@@ -388,6 +390,33 @@ void printBitBoard(U64 board) {
         printf("\n");
     }
     printf("\n");
+}
+
+void printBoard() {
+    for (int y = 8; y >= 0; y--) {
+        for (int x = 0; x < 8; x++) {
+            char hasPiece = 0;
+            for (int piece = P; piece <= k; piece++) {
+                if ((bitboards[piece] & (1ULL << ((7 - y) * 8 + x))) != 0) {
+                    if ((x + y) % 2)
+                        printf("%s%s ", BLACKPRINT, unicodePieces[piece]);
+                    else
+                        printf("\x1b[30;47m%s ", unicodePieces[piece]);
+                    hasPiece = 1;
+                    break;
+                }
+            }
+            if (!hasPiece) {
+                    if ((x + y) % 2)
+                        printf("%s  ", BLACKPRINT);
+                    else
+                        printf("\x1b[30;47m  ");
+
+            }
+        }
+        printf("\x1b[1;37;40m\n");
+    }
+    printf("en passant\t%d\ncastling\t%d\nside\t\t%d\n", enP, castling, side);
 }
 
 unsigned int random32() {
@@ -426,6 +455,47 @@ U64 setOccupancy(int index, int bits, U64 m) {
     if(index & (1 << i)) result |= (1ULL << j);
   }
   return result;
+}
+
+void setUpBoardFromFen(char* fen) {
+    for(int a = 0; a <= K; a++) bitboards[a] = 0ULL;
+    int i = 0, s = 0, e = 0, pos = 0;
+    for (;i < strlen(fen); i++) {
+        if (fen[i] == ' ')
+            s = 1;
+        else if (e) {
+            enP = e - 'a' + (8 - fen[i] + '0') * 8;
+            e = 0;
+        }
+        else if (!s && fen[i] > '0' && fen[i] < '9')
+            pos += fen[i] - '0';
+        else if (!s && fen[i] != '/') {
+            bitboards[charToPieces[fen[i]]] |= (1ULL << (pos));
+            occupancies[both] |= (1ULL << pos);
+            if (charToPieces[fen[i]] < p)
+                occupancies[white] |= (1ULL << pos);
+            else 
+                occupancies[black] |= (1ULL << pos);
+
+            pos++;
+        }
+        else if (s && fen[i] == 'w')
+            side = white;
+        else if (s && fen[i] == 'b')
+            side = black;
+        else if (s && fen[i] == 'K')
+            castling += WKC;
+        else if (s && fen[i] == 'Q')
+            castling += WQC;
+        else if (s && fen[i] == 'k')
+            castling += BKC;
+        else if (s && fen[i] == 'q')
+            castling += BQC;
+        else if (s && fen[i] >= 'a' && fen[i] <= 's')
+            e = fen[i];
+        else if (s && fen[i] == '-' && castling)
+            enP = notOnBoard;
+    }
 }
 
 void setPiece(U64* board, int pos) {

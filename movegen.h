@@ -21,9 +21,11 @@ static inline void generateMoves(moves* moveList) {
                     addMove(moveList, encMove(cp, np, P, Q, 0, 0, 0, 0));
                     addMove(moveList, encMove(cp, np, P, R, 0, 0, 0, 0));
                     addMove(moveList, encMove(cp, np, P, N, 0, 0, 0, 0));
+                    addMove(moveList, encMove(cp, np, P, B, 0, 0, 0, 0));
                 }
                 else // normal moce
                     addMove(moveList, encMove(cp, np, P, 0, 0, 0, 0, 0));
+
                 if(cp >= A2 && !(occupancies[both] & (1ULL << (np - 8)))) // double pawn move
                     addMove(moveList, encMove(cp, (np - 8), P, 0, 0, 1, 0, 0));
             }
@@ -34,27 +36,29 @@ static inline void generateMoves(moves* moveList) {
                     addMove(moveList, encMove(cp, (cp - 9), P, Q, 1, 0, 0, 0));
                     addMove(moveList, encMove(cp, (cp - 9), P, R, 1, 0, 0, 0));
                     addMove(moveList, encMove(cp, (cp - 9), P, N, 1, 0, 0, 0));
+                    addMove(moveList, encMove(cp, (cp - 9), P, B, 1, 0, 0, 0));
                 }
                 else
                     addMove(moveList, encMove(cp, (cp - 9), P, 0, 1, 0, 0, 0));
             }
             // capture right
-            if (occupancies[black] & (1ULL << (cp - 7)) && !(onA & (1ULL << cp))) {
+            if (occupancies[black] & (1ULL << (cp - 7)) && !(onH & (1ULL << cp))) {
                 if(np <= H8) { // promotions
                     addMove(moveList, encMove(cp, (cp - 7), P, Q, 1, 0, 0, 0));
                     addMove(moveList, encMove(cp, (cp - 7), P, R, 1, 0, 0, 0));
                     addMove(moveList, encMove(cp, (cp - 7), P, N, 1, 0, 0, 0));
+                    addMove(moveList, encMove(cp, (cp - 7), P, B, 1, 0, 0, 0));
                 }
                 else
                     addMove(moveList, encMove(cp, (cp - 7), P, 0, 1, 0, 0, 0));
             }
 
             if (enP != notOnBoard) {
-                printf("%d %d\n", enP, cp);
-                if (enP == cp - 7 && !(cp & onA))
+                if (enP == cp - 7 && !((1ULL << cp) & onH))
                     addMove(moveList, encMove(cp, (cp - 7), P, 0, 0, 0, 1, 0));
-                if (enP == cp - 9 && !(cp & onH))
+                if (enP == cp - 9 && !((1ULL << cp) & onA)) {
                     addMove(moveList, encMove(cp, (cp - 9), P, 0, 0, 0, 1, 0));
+                }
             }
         }
 
@@ -147,10 +151,11 @@ static inline void generateMoves(moves* moveList) {
 
             np = cp + 8;
             if(!(occupancies[both] & (1ULL << np))) {
-                if(np <= H8) {
+                if(np >= A1) {
                     addMove(moveList, encMove(cp, np, p, q, 0, 0, 0, 0));
                     addMove(moveList, encMove(cp, np, p, r, 0, 0, 0, 0));
                     addMove(moveList, encMove(cp, np, p, n, 0, 0, 0, 0));
+                    addMove(moveList, encMove(cp, np, p, b, 0, 0, 0, 0));
                 }
                 else
                     addMove(moveList, encMove(cp, np, p, 0, 0, 0, 0, 0));
@@ -160,29 +165,31 @@ static inline void generateMoves(moves* moveList) {
 
             // capture left
             if (occupancies[white] & (1ULL << (cp + 7)) && !(onA & (1ULL << cp))) {
-                if(np <= H8) {
+                if(np >= A1) {
                     addMove(moveList, encMove(cp, (cp + 7), p, q, 1, 0, 0, 0));
                     addMove(moveList, encMove(cp, (cp + 7), p, r, 1, 0, 0, 0));
                     addMove(moveList, encMove(cp, (cp + 7), p, n, 1, 0, 0, 0));
+                    addMove(moveList, encMove(cp, (cp + 7), p, b, 1, 0, 0, 0));
                 }
                 else
                     addMove(moveList, encMove(cp, (cp + 7), p, 0, 1, 0, 0, 0));
             }
             // capture left
-            if (occupancies[white] & (1ULL << (cp + 9)) && !(onA & (1ULL << cp))) {
-                if(np <= H8) {
+            if (occupancies[white] & (1ULL << (cp + 9)) && !(onH & (1ULL << cp))) {
+                if(np >= A1) {
                     addMove(moveList, encMove(cp, (cp + 9), p, q, 1, 0, 0, 0));
                     addMove(moveList, encMove(cp, (cp + 9), p, r, 1, 0, 0, 0));
                     addMove(moveList, encMove(cp, (cp + 9), p, n, 1, 0, 0, 0));
+                    addMove(moveList, encMove(cp, (cp + 9), p, b, 1, 0, 0, 0));
                 }
                 else
                     addMove(moveList, encMove(cp, (cp + 9), p, 0, 1, 0, 0, 0));
             }
 
             if (enP != notOnBoard) {
-                if (enP == cp + 9 && !(cp & onA))
+                if (enP == cp + 9 && !((1ULL << cp) & onH))
                     addMove(moveList, encMove(cp, (cp + 9), p, 0, 0, 0, 1, 0));
-                if (enP == cp + 7 && !(cp & onH))
+                if (enP == cp + 7 && !((1ULL << cp) & onA))
                     addMove(moveList, encMove(cp, (cp + 7), p, 0, 0, 0, 1, 0));
             }
         }

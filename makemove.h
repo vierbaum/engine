@@ -59,6 +59,8 @@ static inline void addMove(moves *moveList, int move) {
     moveList->count++;
 }
 
+
+void printMove(int);
 static inline int makeMove(int move) {
     int cp, np, piece, promotion, dpush, enPas;
     cp = getSource(move);
@@ -73,16 +75,17 @@ static inline int makeMove(int move) {
     removePiece(bitboards + piece, cp);
 
     if(getCapture(move)) {
-        if (side)
-            for (char piece = p; piece <= k; piece++) {
-                if (getBit(bitboards[piece], np)) {
-                    removePiece(bitboards + piece, np);
+        if (side == white)
+            for (char cpiece = p; cpiece <= k; cpiece++) {
+                if (getBit(bitboards[cpiece], np)) {
+                    removePiece(bitboards + cpiece, np);
                     break;
                 }
             }
-        else for (char piece = P; piece <= K; piece++) {
-                if (getBit(bitboards[piece], np)) {
-                    removePiece(bitboards + piece, np);
+
+        else for (char cpiece = P; cpiece <= K; cpiece++) {
+                if (getBit(bitboards[cpiece], np)) {
+                    removePiece(bitboards + cpiece, np);
                     break;
                 }
         }
@@ -142,7 +145,7 @@ static inline int makeMove(int move) {
         
         side ^= 1;
 
-        if (isAttacked((side == white) ? ffs(bitboards[k]) : ffs(bitboards[K]), side))
+        if (isAttacked((side == white) ? ffs(bitboards[k]) - 1 : ffs(bitboards[K]) - 1, side))
         {
             restoreBoard();
             
@@ -152,7 +155,6 @@ static inline int makeMove(int move) {
         return 1;
 }
 
-void printMove(int);
 
 void printMoveList(moves*);
 

@@ -237,22 +237,16 @@ U64 genPawnAttacks(int pos, char color) {
     setPiece(&bb, pos);
 
     if (!color) {
-        attacks |= (bb >> 8);
         if (pos % 8 != 7)
             attacks |= (bb >> 7);
         if (pos % 8 != 0)
             attacks |= (bb >> 9);
-        if (pos >= A2)
-            attacks |= (bb >> 16);
     } 
     else {
-        attacks |= (bb << 8);
         if (pos % 8 != 7)
             attacks |= (bb << 9);
         if (pos % 8 != 0)
             attacks |= (bb << 7);
-        if (pos <= H7)
-            attacks |= (bb << 16);
     }
     return attacks;
 }
@@ -393,7 +387,7 @@ void printBitBoard(U64 board) {
 }
 
 void printBoard() {
-    for (int y = 8; y >= 0; y--) {
+    for (int y = 7; y >= 0; y--) {
         for (int x = 0; x < 8; x++) {
             char hasPiece = 0;
             for (int piece = P; piece <= k; piece++) {

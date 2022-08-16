@@ -1,6 +1,4 @@
-#include "board.h"
-#include "movegen.h"
-#include "makemove.h"
+#include "perf.h"
 
 U64 pawnAttacks[2][64];
 U64 knightAttacks[64];
@@ -20,39 +18,20 @@ void initAll();
 
 
 int main(int argc, char *argv[]) {
-  //char s[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -";
-  char s[] = "2b5/1P6/4B3/8/4N2n/3Q4/1P1p4/4K2R w KQkq -";
+  char s[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -";
+
   initAll();
-
   U64 board = 0ULL;
-
-  //auto start = std::chrono::high_resolution_clock::now();
-  //auto finish = std::chrono::high_resolution_clock::now();
-  //printf("%f", std::chrono::duration_cast<std::chrono::nanoseconds>(finish-start).count() * 0.000000001);
-
   setUpBoardFromFen(s);
-  //printBoard();
 
-  moves moveList;
-  generateMoves(&moveList);
+  clock_t start, stop;
+  printf("START\n");
+  start = clock();
+  perftTest(6);
+  stop = clock();
 
-  copyBoard();
+  printf("%f\n", (double)(stop - start) / CLOCKS_PER_SEC);
 
-    for (int move_count = 0; move_count < moveList.count; move_count++)
-    {
-        // init move
-        int move = moveList.moves[move_count];
-        
-        // preserve board state
-        
-        // make move
-        if (!makeMove(move))
-            continue;
-        
-        printMove(move);
-        printBoardSimple();
-        restoreBoard()
-    }
   return 0;
 }
 

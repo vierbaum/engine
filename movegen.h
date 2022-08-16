@@ -1,6 +1,11 @@
-#include "board.h"
+#ifndef MOVEGEN_H_
+#define MOVEGEN_H_
 
-static inline void generateMoves() {
+#include "board.h"
+#include "makemove.h"
+
+static inline void generateMoves(moves* moveList) {
+    moveList->count = 0;
     char cp, np;
     U64 bb, attacks;
 
@@ -12,20 +17,45 @@ static inline void generateMoves() {
 
             np = cp - 8;
             if(!(occupancies[both] & (1ULL << np))) {
-                if(np <= H8)
-                    printf("PROMOTION W FROM %s TO %s\n", SQUARER[cp], SQUARER[np]);
-                else
-                    printf("PAWNMOVE W FROM %s TO %s\n", SQUARER[cp], SQUARER[np]);
-                if(cp >= A2 && !(occupancies[both] & (1ULL << (np - 8))))
-                    printf("DOUBLE PAWNMOVE W FROM %s TO %s\n", SQUARER[cp], SQUARER[np - 8]);
+                if(np <= H8) { // promotions
+                    addMove(moveList, encMove(cp, np, P, Q, 0, 0, 0, 0));
+                    addMove(moveList, encMove(cp, np, P, R, 0, 0, 0, 0));
+                    addMove(moveList, encMove(cp, np, P, N, 0, 0, 0, 0));
+                }
+                else // normal moce
+                    addMove(moveList, encMove(cp, np, P, 0, 0, 0, 0, 0));
+                if(cp >= A2 && !(occupancies[both] & (1ULL << (np - 8)))) // double pawn move
+                    addMove(moveList, encMove(cp, (np - 8), P, 0, 0, 1, 0, 0));
             }
 
             // capture left
-            if (occupancies[black] & (1ULL << (cp - 9)) && !(onA & (1ULL << cp)))
-                printf("PAWN CAPTURE W FROM %s TO %s\n", SQUARER[cp], SQUARER[cp - 9]);
+            if (occupancies[black] & (1ULL << (cp - 9)) && !(onA & (1ULL << cp))) {
+                if(np <= H8) { // promotions
+                    addMove(moveList, encMove(cp, (cp - 9), P, Q, 1, 0, 0, 0));
+                    addMove(moveList, encMove(cp, (cp - 9), P, R, 1, 0, 0, 0));
+                    addMove(moveList, encMove(cp, (cp - 9), P, N, 1, 0, 0, 0));
+                }
+                else
+                    addMove(moveList, encMove(cp, (cp - 9), P, 0, 1, 0, 0, 0));
+            }
             // capture right
-            if (occupancies[black] & (1ULL << (cp - 7)) && !(onA & (1ULL << cp)))
-                printf("PAWN CAPTURE W FROM %s TO %s\n", SQUARER[cp], SQUARER[cp - 7]);
+            if (occupancies[black] & (1ULL << (cp - 7)) && !(onA & (1ULL << cp))) {
+                if(np <= H8) { // promotions
+                    addMove(moveList, encMove(cp, (cp - 7), P, Q, 1, 0, 0, 0));
+                    addMove(moveList, encMove(cp, (cp - 7), P, R, 1, 0, 0, 0));
+                    addMove(moveList, encMove(cp, (cp - 7), P, N, 1, 0, 0, 0));
+                }
+                else
+                    addMove(moveList, encMove(cp, (cp - 7), P, 0, 1, 0, 0, 0));
+            }
+
+            if (enP != notOnBoard) {
+                printf("%d %d\n", enP, cp);
+                if (enP == cp - 7 && !(cp & onA))
+                    addMove(moveList, encMove(cp, (cp - 7), P, 0, 0, 0, 1, 0));
+                if (enP == cp - 9 && !(cp & onH))
+                    addMove(moveList, encMove(cp, (cp - 9), P, 0, 0, 0, 1, 0));
+            }
         }
 
         // white bishops
@@ -35,8 +65,10 @@ static inline void generateMoves() {
             attacks = getBishopAttacks(cp, occupancies[both]);
             while (attacks) {
                 np = rem1stBit(&attacks);
-                if (!(occupancies[white] & (1ULL << np)))
-                    printf("BISHOPS W FROM %s TO %s\n", SQUARER[cp], SQUARER[np]);
+                if (!(occupancies[both] & (1ULL << np)))
+                    addMove(moveList, encMove(cp, np, B, 0, 0, 0, 0, 0));
+                if ((occupancies[black] & (1ULL << np)))
+                    addMove(moveList, encMove(cp, np, B, 0, 1, 0, 0, 0));
             }
         }
 
@@ -47,8 +79,10 @@ static inline void generateMoves() {
             attacks = knightAttacks[cp];
             while (attacks) {
                 np = rem1stBit(&attacks);
-                if (!(occupancies[white] & (1ULL << np)))
-                    printf("KNIGHT W FROM %s TO %s\n", SQUARER[cp], SQUARER[np]);
+                if (!(occupancies[both] & (1ULL << np)))
+                    addMove(moveList, encMove(cp, np, N, 0, 0, 0, 0, 0));
+                if ((occupancies[black] & (1ULL << np)))
+                    addMove(moveList, encMove(cp, np, N, 0, 1, 0, 0, 0));
             }
         }
 
@@ -59,8 +93,10 @@ static inline void generateMoves() {
             attacks = getRookAttacks(cp, occupancies[both]);
             while (attacks) {
                 np = rem1stBit(&attacks);
-                if (!(occupancies[white] & (1ULL << np)))
-                    printf("ROOK W FROM %s TO %s\n", SQUARER[cp], SQUARER[np]);
+                if (!(occupancies[both] & (1ULL << np)))
+                    addMove(moveList, encMove(cp, np, R, 0, 0, 0, 0, 0));
+                if ((occupancies[black] & (1ULL << np)))
+                    addMove(moveList, encMove(cp, np, R, 0, 1, 0, 0, 0));
             }
         }
 
@@ -71,14 +107,18 @@ static inline void generateMoves() {
             attacks = getBishopAttacks(cp, occupancies[both]);
             while (attacks) {
                 np = rem1stBit(&attacks);
-                if (!(occupancies[white] & (1ULL << np)))
-                    printf("QUEEN B FROM %s TO %s\n", SQUARER[cp], SQUARER[np]);
+                if (!(occupancies[both] & (1ULL << np)))
+                    addMove(moveList, encMove(cp, np, Q, 0, 0, 0, 0, 0));
+                if ((occupancies[black] & (1ULL << np)))
+                    addMove(moveList, encMove(cp, np, Q, 0, 1, 0, 0, 0));
             }
             attacks = getRookAttacks(cp, occupancies[both]);
             while (attacks) {
                 np = rem1stBit(&attacks);
-                if (!(occupancies[white] & (1ULL << np)))
-                    printf("QUEEN B FROM %s TO %s\n", SQUARER[cp], SQUARER[np]);
+                if (!(occupancies[both] & (1ULL << np)))
+                    addMove(moveList, encMove(cp, np, Q, 0, 0, 0, 0, 0));
+                if ((occupancies[black] & (1ULL << np)))
+                    addMove(moveList, encMove(cp, np, Q, 0, 1, 0, 0, 0));
             }
         }
 
@@ -88,13 +128,16 @@ static inline void generateMoves() {
         attacks = kingAttacks[cp];
         while (attacks) {
             np = rem1stBit(&attacks);
-            if (!(occupancies[white] & (1ULL << np)))
-                printf("KING W FROM %s TO %s\n", SQUARER[cp], SQUARER[np]);
+                if (!(occupancies[both] & (1ULL << np)))
+                    addMove(moveList, encMove(cp, np, K, 0, 0, 0, 0, 0));
+                if ((occupancies[black] & (1ULL << np)))
+                    addMove(moveList, encMove(cp, np, K, 0, 1, 0, 0, 0));
         }
+        // TODO
         if (castling & WKC && !getBit(occupancies[both], F1) && !getBit(occupancies[both], G1) && !isAttacked(E1, black) && !isAttacked(F1, black))
-            printf("WHITE KING CASTLING, %d\n", getBit(occupancies[both], F1));
+            addMove(moveList, encMove(E1, G1, K, 0, 0, 0, 0, 1));
         if (castling & WQC && !getBit(occupancies[both], D1) && !getBit(occupancies[both], C1) && !isAttacked(D1, black) && !isAttacked(C1, black))
-            printf("WHITE QUEEN CASTLING\n");
+            addMove(moveList, encMove(E1, C1, K, 0, 0, 0, 0, 1));
     }
     else {
         //black pawns
@@ -104,20 +147,44 @@ static inline void generateMoves() {
 
             np = cp + 8;
             if(!(occupancies[both] & (1ULL << np))) {
-                if(np <= H8)
-                    printf("PROMOTION B FROM %s TO %s\n", SQUARER[cp], SQUARER[np]);
+                if(np <= H8) {
+                    addMove(moveList, encMove(cp, np, p, q, 0, 0, 0, 0));
+                    addMove(moveList, encMove(cp, np, p, r, 0, 0, 0, 0));
+                    addMove(moveList, encMove(cp, np, p, n, 0, 0, 0, 0));
+                }
                 else
-                    printf("PAWNMOVE B FROM %s TO %s\n", SQUARER[cp], SQUARER[np]);
+                    addMove(moveList, encMove(cp, np, p, 0, 0, 0, 0, 0));
                 if(cp <= H7 && !(occupancies[both] & (1ULL << (np + 8))))
-                    printf("DOUBLE PAWNMOVE B FROM %s TO %s\n", SQUARER[cp], SQUARER[np - 8]);
+                    addMove(moveList, encMove(cp, (np + 8), p, 0, 0, 1, 0, 0));
             }
 
             // capture left
-            if (occupancies[white] & (1ULL << (cp + 7)) && !(onA & (1ULL << cp)))
-                printf("PAWN CAPTURE B FROM %s TO %s\n", SQUARER[cp], SQUARER[cp - 7]);
+            if (occupancies[white] & (1ULL << (cp + 7)) && !(onA & (1ULL << cp))) {
+                if(np <= H8) {
+                    addMove(moveList, encMove(cp, (cp + 7), p, q, 1, 0, 0, 0));
+                    addMove(moveList, encMove(cp, (cp + 7), p, r, 1, 0, 0, 0));
+                    addMove(moveList, encMove(cp, (cp + 7), p, n, 1, 0, 0, 0));
+                }
+                else
+                    addMove(moveList, encMove(cp, (cp + 7), p, 0, 1, 0, 0, 0));
+            }
             // capture left
-            if (occupancies[white] & (1ULL << (cp + 9)) && !(onA & (1ULL << cp)))
-                printf("PAWN CAPTURE B FROM %s TO %s\n", SQUARER[cp], SQUARER[cp - 9]);
+            if (occupancies[white] & (1ULL << (cp + 9)) && !(onA & (1ULL << cp))) {
+                if(np <= H8) {
+                    addMove(moveList, encMove(cp, (cp + 9), p, q, 1, 0, 0, 0));
+                    addMove(moveList, encMove(cp, (cp + 9), p, r, 1, 0, 0, 0));
+                    addMove(moveList, encMove(cp, (cp + 9), p, n, 1, 0, 0, 0));
+                }
+                else
+                    addMove(moveList, encMove(cp, (cp + 9), p, 0, 1, 0, 0, 0));
+            }
+
+            if (enP != notOnBoard) {
+                if (enP == cp + 9 && !(cp & onA))
+                    addMove(moveList, encMove(cp, (cp + 9), p, 0, 0, 0, 1, 0));
+                if (enP == cp + 7 && !(cp & onH))
+                    addMove(moveList, encMove(cp, (cp + 7), p, 0, 0, 0, 1, 0));
+            }
         }
 
         // black bishops
@@ -127,8 +194,10 @@ static inline void generateMoves() {
             attacks = getBishopAttacks(cp, occupancies[both]);
             while (attacks) {
                 np = rem1stBit(&attacks);
-                if (!(occupancies[black] & (1ULL << np)))
-                    printf("BISHOPS B FROM %s TO %s\n", SQUARER[cp], SQUARER[np]);
+                if (!(occupancies[both] & (1ULL << np)))
+                    addMove(moveList, encMove(cp, np, b, 0, 0, 0, 0, 0));
+                if ((occupancies[white] & (1ULL << np)))
+                    addMove(moveList, encMove(cp, np, b, 0, 1, 0, 0, 0));
             }
         }
 
@@ -139,8 +208,10 @@ static inline void generateMoves() {
             attacks = knightAttacks[cp];
             while (attacks) {
                 np = rem1stBit(&attacks);
-                if (!(occupancies[black] & (1ULL << np)))
-                    printf("KNIGHT B FROM %s TO %s\n", SQUARER[cp], SQUARER[np]);
+                if (!(occupancies[both] & (1ULL << np)))
+                    addMove(moveList, encMove(cp, np, n, 0, 0, 0, 0, 0));
+                if ((occupancies[white] & (1ULL << np)))
+                    addMove(moveList, encMove(cp, np, n, 0, 1, 0, 0, 0));
             }
         }
 
@@ -151,8 +222,10 @@ static inline void generateMoves() {
             attacks = getRookAttacks(cp, occupancies[both]);
             while (attacks) {
                 np = rem1stBit(&attacks);
-                if (!(occupancies[black] & (1ULL << np)))
-                    printf("ROOK B FROM %s TO %s\n", SQUARER[cp], SQUARER[np]);
+                if (!(occupancies[both] & (1ULL << np)))
+                    addMove(moveList, encMove(cp, np, r, 0, 0, 0, 0, 0));
+                if ((occupancies[white] & (1ULL << np)))
+                    addMove(moveList, encMove(cp, np, r, 0, 1, 0, 0, 0));
             }
         }
 
@@ -163,14 +236,18 @@ static inline void generateMoves() {
             attacks = getBishopAttacks(cp, occupancies[both]);
             while (attacks) {
                 np = rem1stBit(&attacks);
-                if (!(occupancies[black] & (1ULL << np)))
-                    printf("QUEEN B FROM %s TO %s\n", SQUARER[cp], SQUARER[np]);
+                if (!(occupancies[both] & (1ULL << np)))
+                    addMove(moveList, encMove(cp, np, q, 0, 0, 0, 0, 0));
+                if ((occupancies[white] & (1ULL << np)))
+                    addMove(moveList, encMove(cp, np, q, 0, 1, 0, 0, 0));
             }
             attacks = getRookAttacks(cp, occupancies[both]);
             while (attacks) {
                 np = rem1stBit(&attacks);
-                if (!(occupancies[black] & (1ULL << np)))
-                    printf("QUEEN B FROM %s TO %s\n", SQUARER[cp], SQUARER[np]);
+                if (!(occupancies[both] & (1ULL << np)))
+                    addMove(moveList, encMove(cp, np, q, 0, 0, 0, 0, 0));
+                if ((occupancies[white] & (1ULL << np)))
+                    addMove(moveList, encMove(cp, np, q, 0, 1, 0, 0, 0));
             }
         }
 
@@ -180,13 +257,17 @@ static inline void generateMoves() {
         attacks = kingAttacks[cp];
         while (attacks) {
             np = rem1stBit(&attacks);
-            if (!(occupancies[black] & (1ULL << np)))
-                printf("KING W FROM %s TO %s\n", SQUARER[cp], SQUARER[np]);
+                if (!(occupancies[both] & (1ULL << np)))
+                    addMove(moveList, encMove(cp, np, k, 0, 0, 0, 0, 0));
+                if ((occupancies[white] & (1ULL << np)))
+                    addMove(moveList, encMove(cp, np, k, 0, 1, 0, 0, 0));
         }
         if (castling & BKC && !getBit(occupancies[both], F8) && !getBit(occupancies[both], G8) && !isAttacked(E8, white) && !isAttacked(F8, white))
-            printf("WHITE KING CASTLING, %d\n", getBit(occupancies[both], F1));
+            addMove(moveList, encMove(E8, G8, k, 0, 0, 0, 0, 1));
         if (castling & BQC && !getBit(occupancies[both], D8) && !getBit(occupancies[both], C8) && !isAttacked(D8, white) && !isAttacked(C8, white))
-            printf("WHITE QUEEN CASTLING\n");
+            addMove(moveList, encMove(E8, C8, k, 0, 0, 0, 0, 1));
     }
     return;
 }
+
+#endif

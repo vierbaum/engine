@@ -419,6 +419,31 @@ void printBoard() {
     printf("en passant\t%d\ncastling\t%d\nside\t\t%d\n", enP, castling, side);
 }
 
+void printBoardSimple() {
+    for (int y = 7; y >= 0; y--) {
+        for (int x = 0; x < 8; x++) {
+            char hasPiece = 0;
+            for (int piece = P; piece <= k; piece++) {
+                if ((bitboards[piece] & (1ULL << ((7 - y) * 8 + x))) != 0) {
+                    if ((x + y) % 2)
+                        printf("%s ", unicodePieces[piece]);
+                    else
+                        printf("%s ", unicodePieces[piece]);
+                    hasPiece = 1;
+                    break;
+                }
+            }
+            if (!hasPiece) {
+                    printf(". ");
+
+            }
+        }
+        printf("\n");
+    }
+    printf("en passant\t%d\ncastling\t%d\nside\t\t%d\n", enP, castling, side);
+
+}
+
 unsigned int random32() {
     // get current state
     unsigned int number = random_state;

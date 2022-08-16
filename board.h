@@ -59,6 +59,8 @@ static const char* SQUARER[] = {
   "A1", "B1", "C1", "D1", "E1", "F1", "G1", "H1", "NAN"
 };
 
+static const char* PIECER = "PNBRQKpnbrqk";
+
 static const int bishopOccBits[64] = {
     6, 5, 5, 5, 5, 5, 5, 6, 
     5, 5, 5, 5, 5, 5, 5, 5, 
@@ -181,6 +183,8 @@ void printAttackedSquares(char);
 void printBitBoard(U64);
 
 void printBoard();
+
+void printBoardSimple();
 
 unsigned int random32();
 

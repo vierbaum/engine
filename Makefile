@@ -6,9 +6,9 @@
 
 compile:
 	$(CC) -O3 -funroll-loops -march=native -c *\.c
-	$(CC) *\.o -o engine -O3 -march=native
+	$(CC) *\.o -o madaChess -O3 -march=native
 	# $(CC) -c *\.c
-	# $(CC) *\.o -o engine
+	# $(CC) *\.o -o
 	rm *\.o
 
 

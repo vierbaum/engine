@@ -1,4 +1,5 @@
 #include "perf.h"
+#include "makemove.h"
 #include "movegen.h"
 
 long nodes;
@@ -44,7 +45,10 @@ void perftTest(int depth)
         perftDriver(depth - 1);
         long old_nodes = nodes - cummulative_nodes;
         restoreBoard()
-        printf("     move: %s%s%c  nodes: %ld\n", SQUARER[getSource(moveList.moves[moveCount])], SQUARER[getTarget(moveList.moves[moveCount])], getPromoted(moveList.moves[moveCount]) ? promotedPieces[getPromoted(moveList.moves[moveCount])] : ' ',old_nodes);
+        if (getPromoted(moveList.moves[moveCount]))
+            printf("%s%s%c: %ld\n", SQUARER[getSource(moveList.moves[moveCount])], SQUARER[getTarget(moveList.moves[moveCount])], promotedPieces[getPromoted(moveList.moves[moveCount])],old_nodes);
+        else
+            printf("%s%s: %ld\n", SQUARER[getSource(moveList.moves[moveCount])], SQUARER[getTarget(moveList.moves[moveCount])],old_nodes);
     }
     
     // print results

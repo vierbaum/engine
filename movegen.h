@@ -140,7 +140,7 @@ static inline void generateMoves(moves* moveList) {
         // TODO
         if (castling & WKC && !getBit(occupancies[both], F1) && !getBit(occupancies[both], G1) && !isAttacked(E1, black) && !isAttacked(F1, black))
             addMove(moveList, encMove(E1, G1, K, 0, 0, 0, 0, 1));
-        if (castling & WQC && !getBit(occupancies[both], D1) && !getBit(occupancies[both], C1) && !isAttacked(D1, black) && !isAttacked(C1, black))
+        if (castling & WQC && !getBit(occupancies[both], D1) && !getBit(occupancies[both], B1) && !getBit(occupancies[both], C1) && !isAttacked(E1, black) && !isAttacked(D1, black) && !isAttacked(C1, black))
             addMove(moveList, encMove(E1, C1, K, 0, 0, 0, 0, 1));
     }
     else {
@@ -271,7 +271,7 @@ static inline void generateMoves(moves* moveList) {
         }
         if (castling & BKC && !getBit(occupancies[both], F8) && !getBit(occupancies[both], G8) && !isAttacked(E8, white) && !isAttacked(F8, white))
             addMove(moveList, encMove(E8, G8, k, 0, 0, 0, 0, 1));
-        if (castling & BQC && !getBit(occupancies[both], D8) && !getBit(occupancies[both], C8) && !isAttacked(D8, white) && !isAttacked(C8, white))
+        if (castling & BQC && !getBit(occupancies[both], D8) && !getBit(occupancies[both], B8) && !getBit(occupancies[both], C8) && !isAttacked(D8, white) && !isAttacked(E8, white) && !isAttacked(C8, white))
             addMove(moveList, encMove(E8, C8, k, 0, 0, 0, 0, 1));
     }
     return;

@@ -2,17 +2,17 @@
 #define EVAL_H_
 #include "board.h"
 
-extern int PAWNEVAL[2][3][64]; 
-extern int KNIGHTEVAL[2][3][64]; 
-extern int BISHOPEVAL[2][3][64]; 
-extern int ROOKEVAL[2][3][64]; 
-extern int QUEENEVAL[2][3][64]; 
-extern int KINGEVAL[2][3][64]; 
+extern int PAWNEVAL[2][3][64];
+extern int KNIGHTEVAL[2][3][64];
+extern int BISHOPEVAL[2][3][64];
+extern int ROOKEVAL[2][3][64];
+extern int QUEENEVAL[2][3][64];
+extern int KINGEVAL[2][3][64];
 
 static inline int eval(Board* board) {
     int eval = 0;
     char pos;
-    U64 bb; 
+    U64 bb;
     bb = board->bitboards[P];
     while(bb) {
         pos = rem1stBit(&bb);

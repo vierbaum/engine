@@ -12,16 +12,16 @@ void perftDriver(int depth, Board* board)
         nodes++;
         return;
     }
-    
+
     Board cBoard;
     moves moveList;
     generateMoves(&moveList, board);
-    for (int moveCount = 0; moveCount < moveList.count; moveCount++) {   
+    for (int moveCount = 0; moveCount < moveList.count; moveCount++) {
 
         cBoard = *board;
         if (!makeMove(moveList.moves[moveCount], &cBoard))
             continue;
-        
+
         perftDriver(depth - 1, &cBoard);
     }
 }
@@ -29,16 +29,16 @@ void perftDriver(int depth, Board* board)
 void perftTest(int depth, Board* board)
 {
     moves moveList;
-    
+
     Board cBoard;
     generateMoves(&moveList, board);
     for (int moveCount = 0; moveCount < moveList.count; moveCount++)
-    {   
-        cBoard = *board; 
+    {
+        cBoard = *board;
         // make move
         if (!makeMove(moveList.moves[moveCount], &cBoard))
             continue;
-        
+
         long cummulative_nodes = nodes;
         perftDriver(depth - 1, &cBoard);
 
@@ -48,7 +48,7 @@ void perftTest(int depth, Board* board)
         else
             printf("%s%s: %ld\n", SQUARER[getSource(moveList.moves[moveCount])], SQUARER[getTarget(moveList.moves[moveCount])],old_nodes);
     }
-    
+
     // print results
     printf("\n    Depth: %d\n", depth);
     printf("    Nodes: %ld\n", nodes);

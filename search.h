@@ -26,7 +26,7 @@ static inline int alphaBeta(int alpha, int beta, int depthleft, Board* board) {
    int score;
 
    Board cBoard;
-   for (int moveCount = 0; moveCount < moveList.count; moveCount++) {
+   for (int moveCount = 0; moveCount < moveList.count; moveCount++) {   
 
       cBoard = *board;
          if (!makeMove(moveList.moves[moveCount], &cBoard))

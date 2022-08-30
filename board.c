@@ -74,14 +74,15 @@ void printBoardSimple(Board* board) {
 unsigned int random32() {
     // get current state
     unsigned int number = random_state;
-
+    
     // XOR shift algorithm
     number ^= number << 13;
     number ^= number >> 17;
+    number ^= number << 5;
+    
     // update random number state
-
     random_state = number;
-
+    
     // return random number
     return number;
 }
@@ -107,7 +108,7 @@ void setUpBoardFromFen(char* fen, Board* board) {
             board->occupancies[both] |= (1ULL << pos);
             if (charToPieces[fen[i]] < p)
                 board->occupancies[white] |= (1ULL << pos);
-            else
+            else 
                 board->occupancies[black] |= (1ULL << pos);
 
             pos++;

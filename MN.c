@@ -20,10 +20,10 @@ U64 findMagicNumber(int sq, int m, int bishop) {
 
       if(used[j] == 0ULL) {
         used[j] = a[i];
-      }
+      } 
       else if(used[j] != a[i]){
         fail = 1;
-      }
+      } 
     }
     if(!fail) return magic;
   }
@@ -33,37 +33,37 @@ U64 findMagicNumber(int sq, int m, int bishop) {
 U64 genBishopAttack(int pos, U64 block) {
     // result attacks bitboard
     U64 attacks = 0ULL;
-
+    
     int r, f;
-
+    
     int tr = pos / 8;
     int tf = pos % 8;
-
+    
     for (r = tr + 1, f = tf + 1; r <= 7 && f <= 7; r++, f++) {
         attacks |= (1ULL << (r * 8 + f));
         if ((1ULL << (r * 8 + f)) & block)
             break;
     }
-
+    
     for (r = tr - 1, f = tf + 1; r >= 0 && f <= 7; r--, f++) {
         attacks |= (1ULL << (r * 8 + f));
         if ((1ULL << (r * 8 + f)) & block)
             break;
     }
-
+    
     for (r = tr + 1, f = tf - 1; r <= 7 && f >= 0; r++, f--) {
         attacks |= (1ULL << (r * 8 + f));
         if ((1ULL << (r * 8 + f)) & block)
             break;
     }
-
+    
     for (r = tr - 1, f = tf - 1; r >= 0 && f >= 0; r--, f--) {
         attacks |= (1ULL << (r * 8 + f));
         if ((1ULL << (r * 8 + f)) & block)
             break;
     }
-
-    return attacks;
+    
+    return attacks; 
 }
 
 U64 genBishopOccupancy(int sq) {
@@ -155,7 +155,7 @@ U64 genKnightAttacks(int pos) {
     U64 attacks = 0ULL;
     setPiece(&bb, pos);
 
-    //checking if on a file
+    //checking if on a file 
     if ((bb & onA) != 0) {
         if (pos <= A3)
             attacks |= (bb << 17);
@@ -238,7 +238,7 @@ U64 genPawnAttacks(int pos, char color) {
             attacks |= (bb >> 7);
         if (pos % 8 != 0)
             attacks |= (bb >> 9);
-    }
+    } 
     else {
         if (pos % 8 != 7)
             attacks |= (bb << 9);
@@ -250,49 +250,49 @@ U64 genPawnAttacks(int pos, char color) {
 
 U64 genRookAttack(int pos, U64 block) {
     U64 attacks = 0ULL;
-
+    
     int r, f;
     int tr = pos / 8;
     int tf = pos % 8;
-
+    
     for (r = tr + 1; r <= 7; r++)
     {
         attacks |= (1ULL << (r * 8 + tf));
         if ((1ULL << (r * 8 + tf)) & block)
             break;
     }
-
+    
     for (r = tr - 1; r >= 0; r--)
     {
         attacks |= (1ULL << (r * 8 + tf));
-        if ((1ULL << (r * 8 + tf)) & block)
+        if ((1ULL << (r * 8 + tf)) & block) 
             break;
     }
-
+    
     for (f = tf + 1; f <= 7; f++)
     {
         attacks |= (1ULL << (tr * 8 + f));
         if ((1ULL << (tr * 8 + f)) & block)
             break;
     }
-
+    
     for (f = tf - 1; f >= 0; f--)
     {
         attacks |= (1ULL << (tr * 8 + f));
         if ((1ULL << (tr * 8 + f)) & block)
             break;
     }
-
+    
     return attacks;
 }
 
 U64 genRookOccupancy(int pos) {
     U64 attacks = 0ULL;
     int r, f;
-
+    
     int tr = pos / 8;
     int tf = pos % 8;
-
+    
     for (r = tr + 1; r <= 6; r++)
         attacks |= (1ULL << (r * 8 + tf));
     for (r = tr - 1; r >= 1; r--)

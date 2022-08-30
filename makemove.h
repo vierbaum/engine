@@ -112,17 +112,17 @@ static inline int makeMove(int move, Board* board) {
                     removePiece(board->bitboards + R, H1);
                     setPiece(board->bitboards + R, F1);
                     break;
-
+                
                 case (C1):
                     removePiece(board->bitboards + R, A1);
                     setPiece(board->bitboards + R, D1);
                     break;
-
+                
                 case (G8):
                     removePiece(board->bitboards + r, H8);
                     setPiece(board->bitboards + r, F8);
                     break;
-
+                
                 case (C8):
                     removePiece(board->bitboards + r, A8);
                     setPiece(board->bitboards + r, D8);
@@ -133,7 +133,7 @@ static inline int makeMove(int move, Board* board) {
         board->castling &= castlingRights[np];
 
         memset(board->occupancies, 0ULL, 24);
-
+        
         for (int bb_piece = P; bb_piece <= K; bb_piece++)
             board->occupancies[white] |= board->bitboards[bb_piece];
 
@@ -142,7 +142,7 @@ static inline int makeMove(int move, Board* board) {
 
         board->occupancies[both] |= board->occupancies[white];
         board->occupancies[both] |= board->occupancies[black];
-
+        
         board->side ^= 1;
 
         if (isAttacked((board->side == white) ? ffs(board->bitboards[k]) - 1 : ffs(board->bitboards[K]) - 1, board->side, board))

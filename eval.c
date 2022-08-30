@@ -91,7 +91,7 @@ void readEvals() {
     else if (c >= '0' && c <= '9') {
       *(number + i) = c;
       i++;
-    }
+    } 
     else if (c == ',' || (c == '\n' && i != 0)) {
       *(number + i) = '\0';
       pos = x + 8 * y;

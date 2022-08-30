@@ -18,7 +18,7 @@ static const char* unicodePieces[] = {"♙", "♘", "♗", "♖", "♕", "♔", 
 
 static unsigned int random_state = 1804289383;
 
-enum {
+enum { 
   A8, B8, C8, D8, E8, F8, G8, H8,
   A7, B7, C7, D7, E7, F7, G7, H7,
   A6, B6, C6, D6, E6, F6, G6, H6,
@@ -66,24 +66,24 @@ static const char* SQUARER[] = {
 static const char* PIECER = "PNBRQKpnbrqk";
 
 static const int bishopOccBits[64] = {
-    6, 5, 5, 5, 5, 5, 5, 6,
-    5, 5, 5, 5, 5, 5, 5, 5,
-    5, 5, 7, 7, 7, 7, 5, 5,
-    5, 5, 7, 9, 9, 7, 5, 5,
-    5, 5, 7, 9, 9, 7, 5, 5,
-    5, 5, 7, 7, 7, 7, 5, 5,
-    5, 5, 5, 5, 5, 5, 5, 5,
+    6, 5, 5, 5, 5, 5, 5, 6, 
+    5, 5, 5, 5, 5, 5, 5, 5, 
+    5, 5, 7, 7, 7, 7, 5, 5, 
+    5, 5, 7, 9, 9, 7, 5, 5, 
+    5, 5, 7, 9, 9, 7, 5, 5, 
+    5, 5, 7, 7, 7, 7, 5, 5, 
+    5, 5, 5, 5, 5, 5, 5, 5, 
     6, 5, 5, 5, 5, 5, 5, 6
 };
 
 static const int rookOccBits[64] = {
-    12, 11, 11, 11, 11, 11, 11, 12,
-    11, 10, 10, 10, 10, 10, 10, 11,
-    11, 10, 10, 10, 10, 10, 10, 11,
-    11, 10, 10, 10, 10, 10, 10, 11,
-    11, 10, 10, 10, 10, 10, 10, 11,
-    11, 10, 10, 10, 10, 10, 10, 11,
-    11, 10, 10, 10, 10, 10, 10, 11,
+    12, 11, 11, 11, 11, 11, 11, 12, 
+    11, 10, 10, 10, 10, 10, 10, 11, 
+    11, 10, 10, 10, 10, 10, 10, 11, 
+    11, 10, 10, 10, 10, 10, 10, 11, 
+    11, 10, 10, 10, 10, 10, 10, 11, 
+    11, 10, 10, 10, 10, 10, 10, 11, 
+    11, 10, 10, 10, 10, 10, 10, 11, 
     12, 11, 11, 11, 11, 11, 11, 12
 };
 
@@ -166,7 +166,7 @@ static inline char isAttacked(int square, int cSide, Board* board) {
   if ((cSide == black) && (pawnAttacks[white][square] & board->bitboards[p])) return 1;
   if (knightAttacks[square] & ((cSide == white) ? board->bitboards[N] : board->bitboards[n])) return 1;
   if (getBishopAttacks(square, board->occupancies[both]) & ((cSide == white) ? board->bitboards[B] : board->bitboards[b])) return 1;
-  if (getRookAttacks(square, board->occupancies[both]) & ((cSide == white) ? board->bitboards[R] : board->bitboards[r])) return 1;
+  if (getRookAttacks(square, board->occupancies[both]) & ((cSide == white) ? board->bitboards[R] : board->bitboards[r])) return 1;    
   if (getQueenAttacks(square, board->occupancies[both]) & ((cSide == white) ? board->bitboards[Q] : board->bitboards[q])) return 1;
   if ((cSide == white) && kingAttacks[square] & ((cSide == white) ? board->bitboards[K] : board->bitboards[k])) return 1;
   if ((cSide == black) && kingAttacks[square] & ((cSide == white) ? board->bitboards[K] : board->bitboards[k])) return 1;

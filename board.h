@@ -14,6 +14,10 @@ static const U64 onA = 72340172838076673ULL;
 static const U64 onB = 144680345676153346ULL;
 static const U64 onH = 9259542123273814144ULL;
 static const U64 onG = 4629771061636907072ULL;
+static const char* unicodePieces[] = {"♙", "♘", "♗", "♖", "♕", "♔", "♟︎", "♞", "♝", "♜", "♛", "♚"};
+
+static unsigned int random_state = 1804289383;
+
 enum { 
   A8, B8, C8, D8, E8, F8, G8, H8,
   A7, B7, C7, D7, E7, F7, G7, H7,
@@ -99,11 +103,15 @@ extern U64 bishopAttacks[64][512];
 extern U64 rookAttacks[64][4096];
 extern U64 bishopMasks[64];
 extern U64 rookMasks[64];
-extern U64 bitboards[12];
-extern U64 occupancies[3];
-extern char side;
-extern char castling;
-extern char enP;
+
+typedef struct {
+  U64 bitboards[12];
+  U64 occupancies[3];
+  char enP;
+  char stage;
+  char castling;
+  char side;
+} Board;
 
 U64 findMagicNumber(int, int, int);
 
@@ -153,15 +161,15 @@ static inline U64 getQueenAttacks(int pos, U64 occ) {
   return rookAttacks[pos][occ1] | bishop;
 }
 
-static inline char isAttacked(int square, int cSide) {
-  if ((cSide == white) && (pawnAttacks[black][square] & bitboards[P])) return 1;
-  if ((cSide == black) && (pawnAttacks[white][square] & bitboards[p])) return 1;
-  if (knightAttacks[square] & ((cSide == white) ? bitboards[N] : bitboards[n])) return 1;
-  if (getBishopAttacks(square, occupancies[both]) & ((cSide == white) ? bitboards[B] : bitboards[b])) return 1;
-  if (getRookAttacks(square, occupancies[both]) & ((cSide == white) ? bitboards[R] : bitboards[r])) return 1;    
-  if (getQueenAttacks(square, occupancies[both]) & ((cSide == white) ? bitboards[Q] : bitboards[q])) return 1;
-  if ((cSide == white) && kingAttacks[square] & ((cSide == white) ? bitboards[K] : bitboards[k])) return 1;
-  if ((cSide == black) && kingAttacks[square] & ((cSide == white) ? bitboards[K] : bitboards[k])) return 1;
+static inline char isAttacked(int square, int cSide, Board* board) {
+  if ((cSide == white) && (pawnAttacks[black][square] & board->bitboards[P])) return 1;
+  if ((cSide == black) && (pawnAttacks[white][square] & board->bitboards[p])) return 1;
+  if (knightAttacks[square] & ((cSide == white) ? board->bitboards[N] : board->bitboards[n])) return 1;
+  if (getBishopAttacks(square, board->occupancies[both]) & ((cSide == white) ? board->bitboards[B] : board->bitboards[b])) return 1;
+  if (getRookAttacks(square, board->occupancies[both]) & ((cSide == white) ? board->bitboards[R] : board->bitboards[r])) return 1;    
+  if (getQueenAttacks(square, board->occupancies[both]) & ((cSide == white) ? board->bitboards[Q] : board->bitboards[q])) return 1;
+  if ((cSide == white) && kingAttacks[square] & ((cSide == white) ? board->bitboards[K] : board->bitboards[k])) return 1;
+  if ((cSide == black) && kingAttacks[square] & ((cSide == white) ? board->bitboards[K] : board->bitboards[k])) return 1;
   // by default return false
   return 0;
 }
@@ -176,15 +184,20 @@ void initPawnAttacks();
 
 void initSliderAttacks();
 
-int pop1stBit(U64*);
+static inline int pop1stBit(U64 *bb) {
+  U64 b = *bb ^ (*bb - 1);
+  unsigned int fold = (unsigned) ((b & 0xffffffff) ^ (b >> 32));
+  *bb &= (*bb - 1);
+  return BitTable[(fold * 0x783a9b23) >> 26];
+}
 
-void printAttackedSquares(char);
+void printAttackedSquares(char, Board*);
 
 void printBitBoard(U64);
 
-void printBoard();
+void printBoard(Board*);
 
-void printBoardSimple();
+void printBoardSimple(Board*);
 
 unsigned int random32();
 
@@ -196,12 +209,25 @@ static inline char rem1stBit(U64* b) {
     return p;
 }
 
-void removePiece(U64*, int);
+static inline void removePiece(U64* board, int pos) {
+    *board ^= (1ULL << pos);
+}
 
-U64 setOccupancy(int, int, U64);
+static inline U64 setOccupancy(int index, int bits, U64 m) {
+  int i, j;
+  U64 result = 0ULL;
+  for(i = 0; i < bits; i++) {
+    j = pop1stBit(&m);
+    if(index & (1 << i)) result |= (1ULL << j);
+  }
+  return result;
+}
 
-void setUpBoardFromFen(char*);
 
-void setPiece(U64*, int);
+void setUpBoardFromFen(char*, Board*);
+
+static inline void setPiece(U64* board, int pos) {
+    *board |= (1ULL << pos);
+}
 
 #endif // BOARD_H_

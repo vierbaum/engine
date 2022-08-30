@@ -1,8 +1,10 @@
+#include "board.h"
 #include "eval.h"
 #include "makemove.h"
 #include "perf.h"
 #include "uci.h"
 #include <stdio.h>
+#include "search.h"
 
 U64 pawnAttacks[2][64];
 U64 knightAttacks[64];
@@ -24,10 +26,12 @@ int KINGEVAL[2][3][64];
 char castling;
 char enP = notOnBoard;
 char side = white;
+char stage = 0;
 void initAll();
 
 
 int main(int argc, char *argv[]) {
+  Board gBoard;
   printf("Chess engine by vierbaum\n");
   initAll();
   //char s[] = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - "; // Kiwipete
@@ -46,11 +50,11 @@ int main(int argc, char *argv[]) {
 
   printf("%f\n", (double)(stop - start) / CLOCKS_PER_SEC);
   */
-  printf("%d\n", getNum("12"));
-  printPieceTable(PAWNEVAL[0][0]);
-  printf("P %d", PAWNEVAL[white][0][E4]);
   FILE *fp;
-
+  think("position startpos", &gBoard);
+  printf("%d\n", alphaBeta(-1000000, 1000000, 8, &gBoard));
+  printMoveUCI(bMove);
+  /*
   char* input;
   size_t size = 128;
   input = (char*) malloc(size * sizeof(char));
@@ -67,6 +71,7 @@ int main(int argc, char *argv[]) {
     fclose(fp);
     if(!think(input)) return 0;
   }
+  */
   return 0;
 }
 

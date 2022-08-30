@@ -4,8 +4,8 @@
 #include "makemove.h"
 #include <time.h>
 
-void perftTest(int);
+void perftTest(int, Board*);
 
-void perftDriver(int);
+void perftDriver(int, Board*);
 
 #endif

@@ -10,11 +10,11 @@
 
 static char STARTPOS[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"; // start
 
-int convMove(char*);
+int convMove(char*, Board*);
 
-void setPos(char*);
+void setPos(char*, Board*);
 
-int think(char*);
+int think(char*, Board*);
 
 void uciOut(char*, ...);
 

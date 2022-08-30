@@ -6,45 +6,43 @@ long nodes;
 long captures;
 
 // perft driver
-void perftDriver(int depth)
+void perftDriver(int depth, Board* board)
 {
     if (depth == 0) {
         nodes++;
         return;
     }
     
+    Board cBoard;
     moves moveList;
-    generateMoves(&moveList);
+    generateMoves(&moveList, board);
     for (int moveCount = 0; moveCount < moveList.count; moveCount++) {   
-        if (getCapture(moveList.moves[moveCount]))
-            captures++;
 
-        copyBoard()
-        if (!makeMove(moveList.moves[moveCount]))
+        cBoard = *board;
+        if (!makeMove(moveList.moves[moveCount], &cBoard))
             continue;
         
-        perftDriver(depth - 1);
-        restoreBoard()
+        perftDriver(depth - 1, &cBoard);
     }
 }
 
-void perftTest(int depth)
+void perftTest(int depth, Board* board)
 {
     moves moveList;
     
-    generateMoves(&moveList);
+    Board cBoard;
+    generateMoves(&moveList, board);
     for (int moveCount = 0; moveCount < moveList.count; moveCount++)
     {   
-        copyBoard()
-        
+        cBoard = *board; 
         // make move
-        if (!makeMove(moveList.moves[moveCount]))
+        if (!makeMove(moveList.moves[moveCount], &cBoard))
             continue;
         
         long cummulative_nodes = nodes;
-        perftDriver(depth - 1);
+        perftDriver(depth - 1, &cBoard);
+
         long old_nodes = nodes - cummulative_nodes;
-        restoreBoard()
         if (getPromoted(moveList.moves[moveCount]))
             printf("%s%s%c: %ld\n", SQUARER[getSource(moveList.moves[moveCount])], SQUARER[getTarget(moveList.moves[moveCount])], promotedPieces[getPromoted(moveList.moves[moveCount])],old_nodes);
         else

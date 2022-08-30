@@ -4,14 +4,14 @@
 #include "eval.h"
 #include <stdarg.h>
 
-int convMove(char* move) {
+int convMove(char* move, Board* board) {
     char from, to, promotionflag = 0;
     from = (move[0] - 'a') + (8 - move[1] + '0') * 8;
     to = (move[2] - 'a') + (8 - move[3] + '0') * 8;
     if (move[4] != '\0')
         promotionflag = move[4];
     moves moveList;
-    generateMoves(&moveList);
+    generateMoves(&moveList, board);
     for (int i = 0; i < moveList.count; i++) {
         if ((getSource(moveList.moves[i])) == from && (getTarget(moveList.moves[i])) == to && getPromoted(moveList.moves[i]) == promotionflag)
             return moveList.moves[i];
@@ -19,19 +19,19 @@ int convMove(char* move) {
     return 0;
 }
 
-void setPos(char* pos) {
+void setPos(char* pos, Board* board) {
     char* move;
     move = (char*) malloc(6 * sizeof(char));
     *(move + 5) = '\0';
 
     if(!(strncmp(pos, "startpos", 8))) {
-        setUpBoardFromFen(STARTPOS);
+        setUpBoardFromFen(STARTPOS, board);
         pos += 8;
     }
 
     if(!(strncmp(pos, "fen", 3))) {
         pos += 4;
-        setUpBoardFromFen(pos);
+        setUpBoardFromFen(pos, board);
     }
 
     if(!(strncmp(pos, " moves", 5))) {
@@ -42,7 +42,7 @@ void setPos(char* pos) {
                 *(move + 1) = *(pos + 1);
                 *(move + 2) = *(pos + 2);
                 *(move + 3) = *(pos + 3);
-                makeMove(convMove(move));
+                makeMove(convMove(move, board), board);
                 pos +=5;
             }
             else
@@ -53,7 +53,7 @@ void setPos(char* pos) {
     free(move);
 }
 
-int think(char* command) {
+int think(char* command, Board* board) {
     if(!strcmp(command, "isready"))
         uciOut("readyok\n");
     if(!(strncmp(command, "uci", 3))) {
@@ -66,17 +66,17 @@ int think(char* command) {
     if(!(strncmp(command, "quit", 4)))
         return 0;
     if(!(strncmp(command, "print", 5)))
-        printBoard();
+        printBoard(board);
     if(!(strncmp(command, "position", 8)))
-        setPos(command + 9);
+        setPos(command + 9, board);
     if(!(strncmp(command, "go", 2))) {
         moves moveList;
-        generateMoves(&moveList);
+        generateMoves(&moveList, board);
         printf("bestmove ");
         printMoveUCI(moveList.moves[(int) (moveList.count * 0.75)]);
     }
     if(!(strncmp(command, "eval", 4))) {
-        uciOut("%d\n", eval());
+        uciOut("%d\n", eval(board));
 
     }
     return 1;

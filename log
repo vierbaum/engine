@@ -1,11 +1,40 @@
->[A
+>p
+>print
+>position startpos
+>print
+>position startpos
+>print
+>eval
+<1015359680
+>position startpos
+>position startpos
+>print
+>eval
+<-126043968
 >quit
->[A
+>position startpos
+>eval
+<-1737583424
+>quit
+<633309528
+>quit
+<-1071786232
+>quit
+<1619311160
+>quit
+<0
+>quit
+<0
 >quit
 >quit
->quir
+>uci
+<id name madaChess
+<id author vierbaum
+<option name test type spin default 1 min 1 max 32
+<uciok
 >quit
->quit
->quit
->quit
->quit
+>uci
+<id name madaChess
+<id author vierbaum
+<option name test type spin default 1 min 1 max 32
+<uciok

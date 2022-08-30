@@ -61,7 +61,8 @@ static inline void addMove(moves *moveList, int move) {
 
 
 void printMove(int);
-static inline int makeMove(int move) {
+
+static inline int makeMove(int move, Board* board) {
     int cp, np, piece, promotion, dpush, enPas;
     cp = getSource(move);
     np = getTarget(move);
@@ -70,86 +71,84 @@ static inline int makeMove(int move) {
     dpush = getDouble(move);
     enPas = getEnPassant(move);
 
-    copyBoard();
-
-    removePiece(bitboards + piece, cp);
+    Board cBoard = *board;
+    removePiece(board->bitboards + piece, cp);
 
     if(getCapture(move)) {
-        if (side == white)
+        if (board->side == white)
             for (char cpiece = p; cpiece <= k; cpiece++) {
-                if (getBit(bitboards[cpiece], np)) {
-                    removePiece(bitboards + cpiece, np);
+                if (getBit(board->bitboards[cpiece], np)) {
+                    removePiece(board->bitboards + cpiece, np);
                     break;
                 }
             }
 
         else for (char cpiece = P; cpiece <= K; cpiece++) {
-                if (getBit(bitboards[cpiece], np)) {
-                    removePiece(bitboards + cpiece, np);
+                if (getBit(board->bitboards[cpiece], np)) {
+                    removePiece(board->bitboards + cpiece, np);
                     break;
                 }
         }
     }
     if(promotion) {
-        setPiece(bitboards + promotion, np);
+        setPiece(board->bitboards + promotion, np);
     }
     else
-        setPiece(bitboards + piece, np);
+        setPiece(board->bitboards + piece, np);
 
     if (enPas)
-        (side == white) ? removePiece(bitboards + p, np + 8) : removePiece(bitboards + P, np - 8);
+        (board->side == white) ? removePiece(board->bitboards + p, np + 8) : removePiece(board->bitboards + P, np - 8);
 
-    enP = notOnBoard;
+    board->enP = notOnBoard;
 
     if (dpush)
-        (side == white) ? (enP = np + 8) : (enP = np - 8);
+        (board->side == white) ? (board->enP = np + 8) : (board->enP = np - 8);
 
   if (getCastling(move))
         {
             switch (np)
             {
                 case (G1):
-                    removePiece(bitboards + R, H1);
-                    setPiece(bitboards + R, F1);
+                    removePiece(board->bitboards + R, H1);
+                    setPiece(board->bitboards + R, F1);
                     break;
                 
                 case (C1):
-                    removePiece(bitboards + R, A1);
-                    setPiece(bitboards + R, D1);
+                    removePiece(board->bitboards + R, A1);
+                    setPiece(board->bitboards + R, D1);
                     break;
                 
                 case (G8):
-                    removePiece(bitboards + r, H8);
-                    setPiece(bitboards + r, F8);
+                    removePiece(board->bitboards + r, H8);
+                    setPiece(board->bitboards + r, F8);
                     break;
                 
                 case (C8):
-                    removePiece(bitboards + r, A8);
-                    setPiece(bitboards + r, D8);
+                    removePiece(board->bitboards + r, A8);
+                    setPiece(board->bitboards + r, D8);
                     break;
             }
         }
-        castling &= castlingRights[cp];
-        castling &= castlingRights[np];
+        board->castling &= castlingRights[cp];
+        board->castling &= castlingRights[np];
 
-        memset(occupancies, 0ULL, 24);
+        memset(board->occupancies, 0ULL, 24);
         
         for (int bb_piece = P; bb_piece <= K; bb_piece++)
-            occupancies[white] |= bitboards[bb_piece];
+            board->occupancies[white] |= board->bitboards[bb_piece];
 
         for (int bb_piece = p; bb_piece <= k; bb_piece++)
-            occupancies[black] |= bitboards[bb_piece];
+            board->occupancies[black] |= board->bitboards[bb_piece];
 
-        occupancies[both] |= occupancies[white];
-        occupancies[both] |= occupancies[black];
+        board->occupancies[both] |= board->occupancies[white];
+        board->occupancies[both] |= board->occupancies[black];
         
-        side ^= 1;
+        board->side ^= 1;
 
-        if (isAttacked((side == white) ? ffs(bitboards[k]) - 1 : ffs(bitboards[K]) - 1, side))
+        if (isAttacked((board->side == white) ? ffs(board->bitboards[k]) - 1 : ffs(board->bitboards[K]) - 1, board->side, board))
         {
-            restoreBoard();
-            
             // return illegal move
+            *board = cBoard;
             return 0;
         }
         return 1;

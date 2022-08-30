@@ -30,7 +30,7 @@ int power(int base, int exp) {
 
 void printPieceTable(int table[64]) {
     for (int pos = 0; pos <= 63; pos++) {
-      printf("%d |", table[pos]);
+      (table[pos] < 100) ? printf("%d\t|", table[pos]) : printf("%d|", table[pos]);
       if (pos % 8 == 7)
         printf("\n------------------------------------------------------\n");
     }
@@ -45,7 +45,7 @@ void readEvals() {
   number = (char*) malloc(4 * sizeof(char));
   int i = 0;
   char c;
-  int (*currPiece)[2][3][64];
+  int *currPiece;
   int stage;
   char gennum = 0;
   int pos = 0;
@@ -58,23 +58,22 @@ void readEvals() {
       i = 0;
       switch (c) {
       case 'P':
-        currPiece = &PAWNEVAL;
-        printf("PAWNEVAL\n");
+        currPiece = PAWNEVAL;
         break;
       case 'N':
-        currPiece = &KNIGHTEVAL;
+        currPiece = KNIGHTEVAL;
         break;
       case 'B':
-        currPiece = &BISHOPEVAL;
+        currPiece = BISHOPEVAL;
         break;
       case 'R':
-        currPiece = &ROOKEVAL;
+        currPiece = ROOKEVAL;
         break;
       case 'Q':
-        currPiece = &QUEENEVAL;
+        currPiece = QUEENEVAL;
         break;
       case 'K':
-        currPiece = &KINGEVAL;
+        currPiece = KINGEVAL;
         break;
       case 'S':
         stage = 0;
@@ -95,11 +94,11 @@ void readEvals() {
     } 
     else if (c == ',' || (c == '\n' && i != 0)) {
       *(number + i) = '\0';
-      // white
       pos = x + 8 * y;
-      printf("%d, %d %d\n", getNum(number), pos, stage);
-      (*currPiece)[white][stage][pos] = getNum(number);
-      (*currPiece)[black][stage][pos] = getNum(number);
+      *(currPiece + stage * 64 + pos) = getNum(number);
+
+      pos = x + 8 * (7 - y);
+      *(currPiece + 192 + stage * 64 + pos) = -getNum(number);
       i = 0;
       x++;
       if (x == 8) {

@@ -33,16 +33,10 @@ static inline int alphaBeta(int alpha, int beta, int depthleft, Board* board) {
             continue;
 
       score = -alphaBeta(-beta, -alpha, depthleft - 1, &cBoard);
-      if (depthleft == 8) {
-         printf("%d ", score);
-         printMoveUCI(moveList.moves[moveCount]);
-      }
       if (score >= beta)
          return beta;   //  fail hard beta-cutoff
       if (score > alpha) {
          alpha = score; // alpha acts like max in MiniMax
-         if(depthleft == 8)
-            bMove = moveList.moves[moveCount];
 
       }
    }
@@ -52,6 +46,36 @@ static inline int alphaBeta(int alpha, int beta, int depthleft, Board* board) {
 
 int alphaBetaRoot(int, Board*);
 
+static inline int quiesce(int alpha, int beta, Board* board) {
+
+   nodes++;
+    int stand_pat = eval(board);
+    if( stand_pat >= beta )
+        return beta;
+    if( alpha < stand_pat )
+        alpha = stand_pat;
+   moves moveList;
+   generateForcingMoves(&moveList, board);
+   int score;
+
+   Board cBoard;
+   for (int moveCount = 0; moveCount < moveList.count; moveCount++) {   
+
+      cBoard = *board;
+         if (!makeMove(moveList.moves[moveCount], &cBoard))
+            continue;
+
+      score = -quiesce(-beta, -alpha, &cBoard);
+      if (score >= beta)
+         return beta;   //  fail hard beta-cutoff
+      if (score > alpha) {
+         alpha = score; // alpha acts like max in MiniMax
+      }
+   }
+   return alpha;
+}
+
 void searchThreaded(void*);
+
 
 #endif

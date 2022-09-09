@@ -15,6 +15,7 @@ void perftDriver(int depth, Board* board)
     
     Board cBoard;
     moves moveList;
+    generateForcingMoves(&moveList, board);;
     generateMoves(&moveList, board);
     for (int moveCount = 0; moveCount < moveList.count; moveCount++) {   
 
@@ -31,6 +32,7 @@ void perftTest(int depth, Board* board)
     moves moveList;
     
     Board cBoard;
+    generateForcingMoves(&moveList, board);;
     generateMoves(&moveList, board);
     for (int moveCount = 0; moveCount < moveList.count; moveCount++)
     {   

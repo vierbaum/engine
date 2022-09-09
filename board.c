@@ -93,6 +93,7 @@ void setUpBoardFromFen(char* fen, Board* board) {
     board->castling = 0;
     board->enP = notOnBoard;
     board->stage = 0;
+    board->ply = 0;
     int i = 0, s = 0, e = 0, pos = 0;
     for (;i < strlen(fen); i++) {
         if (fen[i] == ' ')

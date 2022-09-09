@@ -111,6 +111,7 @@ typedef struct {
   char stage;
   char castling;
   char side;
+  int ply;
 } Board;
 
 U64 findMagicNumber(int, int, int);

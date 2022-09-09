@@ -8,7 +8,10 @@
 #include <string.h>
 #include <stdarg.h>
 
+enum {none, uci, graphicle};
+
 static char STARTPOS[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"; // start
+static char mode = none;
 
 int convMove(char*, Board*);
 

@@ -49,25 +49,26 @@ int main(int argc, char *argv[]) {
   */
 
   FILE *fp;
+
+  think("uci", &gBoard);
   think("position startpos", &gBoard);
   clock_t start, stop;
   printf("START\n");
   start = clock();
-  alphaBetaRoot(7, &gBoard);
+  alphaBetaRoot(9, &gBoard);
   stop = clock();
-
-  printf("%f\n", (double)(stop - start) / CLOCKS_PER_SEC);
+  printf("%f\n", (double)(stop - start) / CLOCKS_PER_SEC / 4);
 
   /*
   printMove(encMove(H1, H1, k, q, 1, 1, 1, 1));
   int moves[2] = {encMove(E2, E4, P, 0, 0, 1, 0, 0), encMove(E7, E5, p, 0, 0, 1, 0, 0)};
   writeToBook(moves, "Kingspawn opening", 1, 2);
   */
+  /*
   char* input;
   size_t size = 128;
-  input = (char*) malloc(size * sizeof(char));
+  input = (char*) malloc(size);
   char c, i = 0;
-  think("uci", &gBoard);
   while (1) {
     while ((c = getchar()) != '\n') {
       *(input + i) = c;
@@ -80,6 +81,7 @@ int main(int argc, char *argv[]) {
     fclose(fp);
     if(!think(input, &gBoard)) return 0;
   }
+  */
   return 0;
 }
 

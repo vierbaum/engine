@@ -1,4 +1,5 @@
 #include "makemove.h"
+#include "board.h"
 
 void printMove(int move) {
     printf("\nSOURCE TARGET PIEC PROM C D E C\n");
@@ -18,6 +19,12 @@ void printMoveList(moves* list){
     }
 }
 
-void printMoveUCI(int move) {
-    printf("%s%s%c\n", SQUARER[getSource(move)], SQUARER[getTarget(move)], promotedPieces[getPromoted(move)]);
+void printMoveUCI(int move, char* p) {
+    //printf("%s%s%c\n", SQUARER[getSource(move)], SQUARER[getTarget(move)], promotedPieces[getPromoted(move)]);
+    *p = SQUARER[getSource(move)][0];
+    *(p + 1) = SQUARER[getSource(move)][1];
+    *(p + 2) = SQUARER[getTarget(move)][0];
+    *(p + 3) = SQUARER[getTarget(move)][1];
+    *(p + 4) = promotedPieces[getPromoted(move)];
+    *(p + 5) = '\0';
 }

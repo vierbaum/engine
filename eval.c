@@ -42,7 +42,7 @@ void readEvals() {
   file = fopen("evals", "r");
 
   char* number;
-  number = (char*) malloc(4 * sizeof(char));
+  number = (char*) malloc(4);
   int i = 0;
   char c;
   int *currPiece;

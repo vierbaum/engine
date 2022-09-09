@@ -1,7 +1,9 @@
 #include "uci.h"
+#include "board.h"
 #include "makemove.h"
 #include "movegen.h"
 #include "eval.h"
+#include "search.h"
 #include <stdarg.h>
 
 int convMove(char* move, Board* board) {
@@ -11,6 +13,7 @@ int convMove(char* move, Board* board) {
     if (move[4] != '\0')
         promotionflag = move[4];
     moves moveList;
+    generateForcingMoves(&moveList, board);
     generateMoves(&moveList, board);
     for (int i = 0; i < moveList.count; i++) {
         if ((getSource(moveList.moves[i])) == from && (getTarget(moveList.moves[i])) == to && getPromoted(moveList.moves[i]) == promotionflag)
@@ -21,7 +24,7 @@ int convMove(char* move, Board* board) {
 
 void setPos(char* pos, Board* board) {
     char* move;
-    move = (char*) malloc(6 * sizeof(char));
+    move = (char*) malloc(6);
     *(move + 5) = '\0';
 
     if(!(strncmp(pos, "startpos", 8))) {
@@ -42,7 +45,10 @@ void setPos(char* pos, Board* board) {
                 *(move + 1) = *(pos + 1);
                 *(move + 2) = *(pos + 2);
                 *(move + 3) = *(pos + 3);
-                makeMove(convMove(move, board), board);
+                if (pos[4] == ' ' || pos[4] == '\0')
+                    move[4] = '\0';
+                if (convMove(move, board))
+                    makeMove(convMove(move, board), board);
                 pos +=5;
             }
             else
@@ -58,27 +64,55 @@ int think(char* command, Board* board) {
         uciOut("readyok\n");
     if(!(strncmp(command, "uci", 3))) {
         uciOut("id name madaChess\nid author vierbaum\noption name test type spin default 1 min 1 max 32\nuciok\n");
+        mode = uci;
     }
-
-
-    if(!strcmp(command, "register")) {
-    }
-    if(!(strncmp(command, "quit", 4)))
-        return 0;
+    if(!(strncmp(command, "eval", 4)))
+        uciOut("%d\n", eval(board));
     if(!(strncmp(command, "print", 5)))
         printBoard(board);
-    if(!(strncmp(command, "position", 8)))
-        setPos(command + 9, board);
-    if(!(strncmp(command, "go", 2))) {
-        moves moveList;
-        generateMoves(&moveList, board);
-        printf("bestmove ");
-        printMoveUCI(moveList.moves[(int) (moveList.count * 0.75)]);
+    if (mode == uci) {
+        if(!strcmp(command, "register")) {
+        }
+        if(!(strncmp(command, "quit", 4)))
+            return 0;
+        if(!(strncmp(command, "position", 8)))
+            setPos(command + 9, board);
+        if(!(strncmp(command, "go", 2))) {
+            moves moveList;
+            generateForcingMoves(&moveList, board);;
+            generateMoves(&moveList, board);
+            printf("bestmove ");
+            // TODO printMoveUCI(moveList.moves[(int) (moveList.count * 0.75)]);
+        }
     }
-    if(!(strncmp(command, "eval", 4))) {
-        uciOut("%d\n", eval(board));
+    if (mode == graphicle) {
+        int move = convMove(command, board);
+        if (!move)
+            uciOut("%s not a move\n", command);
+        else {
+            char* moveC = (char*) malloc(5);
+            printMoveUCI(move, moveC);
+            printMove(move);
+            free(moveC);
+            Board cBoard = *board;
+            if (!makeMove(move, board)) {
+                uciOut("illegal move %s! \n learn how the pieaces move and try again!\n", moveC);
+                *board = cBoard;
+            }
+            else {
+                makeMove(alphaBetaRoot(7, board), board);
+                printBoard(board);
+            }
+        }
+    }
+    if(!strncmp(command, "graphicle", 9)) {
+        mode = graphicle;
+        setPos("startpos", board);
+        uciOut("entered mode graphicle\n");
+        printBoardSimple(board);
+        uciOut("\nyour move... just resign, it'll save you a lot of time\n");
+    }
 
-    }
     return 1;
 }
 

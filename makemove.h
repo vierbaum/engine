@@ -101,6 +101,8 @@ static inline int makeMove(int move, Board* board) {
 
     board->enP = notOnBoard;
 
+    board->ply++;
+
     if (dpush)
         (board->side == white) ? (board->enP = np + 8) : (board->enP = np - 8);
 
@@ -157,6 +159,6 @@ static inline int makeMove(int move, Board* board) {
 
 void printMoveList(moves*);
 
-void printMoveUCI(int);
+void printMoveUCI(int, char*);
 
 # endif
